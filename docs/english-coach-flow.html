@@ -1,0 +1,290 @@
+<style>
+#ec-flow { --ec-bg:light-dark(#f8faff,#151c28); --ec-paper:light-dark(#ffffff,#202b3c); --ec-ink:light-dark(#19283f,#edf3ff); --ec-muted:light-dark(#647086,#a9b6cb); --ec-line:light-dark(#dce3ee,#3b4a60); --ec-soft:light-dark(#eaf1ff,#273b5c); --ec-blue:light-dark(#235ec0,#b2ceff); --ec-onblue:light-dark(#ffffff,#13294d); --ec-good:light-dark(#256953,#acd8c1); --ec-goodbg:light-dark(#eaf5ee,#223f35); --ec-amber:light-dark(#795722,#e7c48a); --ec-amberbg:light-dark(#f8f0df,#453720); font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic UI",sans-serif; }
+#ec-flow * { box-sizing:border-box; }
+#ec-flow [hidden] { display:none !important; }
+#ec-flow .ec-layout { display:grid; grid-template-columns:minmax(155px,195px) minmax(0,388px); gap:26px; justify-content:center; align-items:start; }
+#ec-flow .ec-flow-head { display:flex; justify-content:space-between; align-items:center; gap:10px; margin:0 0 14px; }
+#ec-flow .ec-route { padding:8px 0 0; }
+#ec-flow .ec-route-label { margin:0 0 10px; }
+#ec-flow .ec-route-list { list-style:none; margin:0; padding:0; display:grid; gap:0; }
+#ec-flow .ec-route-item { position:relative; padding-bottom:24px; }
+#ec-flow .ec-route-item:not(:last-child)::after { content:'↓'; position:absolute; bottom:1px; left:17px; color:var(--muted-foreground); }
+#ec-flow .ec-route-item:last-child { padding-bottom:0; }
+#ec-flow .ec-route-list button { text-align:left; }
+#ec-flow .ec-extra { display:grid; gap:8px; margin-top:22px; }
+#ec-flow .ec-explainer { margin-top:14px; }
+#ec-flow .ec-stage { min-width:0; }
+#ec-flow .ec-device { background:var(--ec-bg); color:var(--ec-ink); border:1px solid var(--ec-line); border-radius:34px; padding:0; overflow:clip; box-shadow:0 12px 32px light-dark(#20314a14,#00000020); font-size:15px; line-height:1.65; }
+#ec-flow .ec-status { display:flex; align-items:center; justify-content:space-between; gap:10px; height:46px; padding:12px 25px 5px; font-size:13px; font-weight:650; }
+#ec-flow .ec-island { width:85px; height:22px; border-radius:15px; background:var(--ec-ink); }
+#ec-flow .ec-status-icons { display:flex; gap:5px; align-items:center; }
+#ec-flow .ec-status svg { width:14px; height:14px; }
+#ec-flow .ec-app-header { display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:55px; padding:8px 20px; }
+#ec-flow .ec-app-header strong { font-size:15px; font-weight:650; }
+#ec-flow .ec-back { padding:5px 0; background:none; border:0; color:var(--ec-blue); display:flex; gap:3px; align-items:center; font:inherit; font-size:13px; min-height:36px; }
+#ec-flow .ec-header-right { color:var(--ec-muted); font-size:12px; }
+#ec-flow .ec-content { padding:12px 22px 26px; min-height:510px; }
+#ec-flow .ec-content h1 { margin:6px 0 15px; font-size:27px; line-height:1.4; font-weight:650; letter-spacing:-.6px; color:var(--ec-ink); }
+#ec-flow .ec-content h2 { margin:0 0 10px; font-size:19px; line-height:1.5; font-weight:650; color:var(--ec-ink); }
+#ec-flow .ec-content h3 { margin:0 0 8px; font-size:15px; line-height:1.5; font-weight:650; color:var(--ec-ink); }
+#ec-flow .ec-content p { margin:0 0 12px; }
+#ec-flow .ec-sub { color:var(--ec-muted); font-size:13px; }
+#ec-flow .ec-small { color:var(--ec-muted); font-size:12px; }
+#ec-flow .ec-kicker { font-size:12px; color:var(--ec-muted); display:flex; gap:6px; align-items:center; margin-bottom:8px; }
+#ec-flow .ec-hero { background:var(--ec-soft); padding:20px; border-radius:22px; margin-bottom:22px; }
+#ec-flow .ec-hero h2 { font-size:24px; line-height:1.45; letter-spacing:-.5px; margin:8px 0 10px; }
+#ec-flow .ec-button { font:inherit; font-weight:600; font-size:14px; background:var(--ec-blue); color:var(--ec-onblue); border:0; padding:13px 15px; border-radius:13px; display:flex; gap:8px; align-items:center; justify-content:center; min-height:48px; width:100%; text-decoration:none; }
+#ec-flow .ec-button + .ec-button { margin-top:9px; }
+#ec-flow .ec-button.ec-secondary { background:var(--ec-paper); color:var(--ec-blue); border:1px solid var(--ec-line); }
+#ec-flow .ec-button.ec-quiet { background:transparent; color:var(--ec-muted); padding:8px; font-size:13px; min-height:40px; }
+#ec-flow .ec-button.ec-stop { background:var(--ec-ink); color:var(--ec-bg); }
+#ec-flow button:disabled { opacity:.5; }
+#ec-flow .ec-device button svg { flex:0 0 auto; width:18px; height:18px; }
+#ec-flow .ec-row { display:flex; align-items:center; gap:10px; }
+#ec-flow .ec-between { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+#ec-flow .ec-list { margin:0 0 18px; padding:0; list-style:none; }
+#ec-flow .ec-list li { padding:11px 0; border-bottom:1px solid var(--ec-line); display:flex; gap:12px; align-items:center; }
+#ec-flow .ec-list li:last-child { border-bottom:0; }
+#ec-flow .ec-step-dot { width:26px; height:26px; display:grid; place-items:center; border-radius:50%; background:var(--ec-soft); color:var(--ec-blue); font-size:12px; flex:0 0 auto; }
+#ec-flow .ec-list strong { font-weight:600; font-size:14px; }
+#ec-flow .ec-list small { font-size:12px; color:var(--ec-muted); }
+#ec-flow .ec-list .ec-list-main { flex:1; min-width:0; }
+#ec-flow .ec-add { width:100%; text-align:left; border:1px dashed var(--ec-line); border-radius:14px; background:transparent; color:var(--ec-ink); font:inherit; padding:14px; display:flex; gap:12px; align-items:center; }
+#ec-flow .ec-add svg { color:var(--ec-blue); }
+#ec-flow .ec-add strong { font-size:14px; font-weight:600; }
+#ec-flow .ec-add small { display:block; font-size:12px; color:var(--ec-muted); }
+#ec-flow .ec-tabs { display:grid; grid-template-columns:repeat(4,1fr); background:var(--ec-paper); border-top:1px solid var(--ec-line); padding:12px 9px 5px; gap:3px; }
+#ec-flow .ec-tab { font:inherit; color:var(--ec-muted); border:0; background:none; display:flex; flex-direction:column; align-items:center; gap:5px; padding:3px 2px; min-height:47px; font-size:11px; }
+#ec-flow .ec-tab[aria-current='page'] { color:var(--ec-blue); font-weight:650; }
+#ec-flow .ec-tab svg { width:21px !important; height:21px !important; }
+#ec-flow .ec-home-indicator { width:106px; height:4px; border-radius:4px; background:var(--ec-ink); margin:10px auto; opacity:.8; }
+#ec-flow .ec-footer-note { text-align:center; margin:10px 0 0; }
+#ec-flow .ec-progress { display:flex; gap:5px; margin:0 0 20px; }
+#ec-flow .ec-progress span { height:4px; flex:1; border-radius:4px; background:var(--ec-line); }
+#ec-flow .ec-progress span.ec-done { background:var(--ec-blue); }
+#ec-flow .ec-prompt { background:var(--ec-paper); padding:22px 18px; border-radius:20px 20px 20px 5px; margin:15px 0; }
+#ec-flow .ec-prompt .ec-english { font-size:27px; line-height:1.4; font-weight:550; letter-spacing:-.5px; margin:12px 0 16px; }
+#ec-flow .ec-speaker { display:flex; gap:8px; align-items:center; font-size:12px; color:var(--ec-muted); }
+#ec-flow .ec-avatar { background:var(--ec-soft); color:var(--ec-blue); height:26px; width:26px; border-radius:9px; display:grid; place-items:center; }
+#ec-flow .ec-audio-actions { display:flex; gap:12px; flex-wrap:wrap; }
+#ec-flow .ec-audio { font:inherit; font-size:12px; padding:5px 0; border:0; color:var(--ec-blue); background:none; display:flex; align-items:center; gap:5px; min-height:32px; }
+#ec-flow .ec-help-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:14px 0; }
+#ec-flow .ec-help { font:inherit; font-size:13px; font-weight:550; border:1px solid var(--ec-line); background:var(--ec-paper); color:var(--ec-ink); border-radius:12px; padding:11px 7px; min-height:45px; display:flex; align-items:center; justify-content:center; gap:5px; }
+#ec-flow .ec-help[aria-expanded='true'] { border-color:var(--ec-blue); color:var(--ec-blue); background:var(--ec-soft); }
+#ec-flow .ec-hint { background:var(--ec-soft); border-radius:14px; padding:15px; margin:0 0 14px; }
+#ec-flow .ec-hint .ec-intent { color:var(--ec-blue); font-size:12px; margin-bottom:5px; }
+#ec-flow .ec-hint p:last-child { margin-bottom:0; }
+#ec-flow .ec-inline-english { font-size:20px; color:var(--ec-ink); line-height:1.45; }
+#ec-flow .ec-controls { margin-top:20px; }
+#ec-flow .ec-answer { background:var(--ec-soft); border-radius:16px 16px 5px 16px; padding:15px; margin:14px 0; }
+#ec-flow .ec-feedback { margin:14px 0; padding:14px 0 14px 14px; border-left:3px solid var(--ec-good); }
+#ec-flow .ec-feedback p { margin:0 0 7px; }
+#ec-flow .ec-feedback strong { color:var(--ec-good); font-size:14px; font-weight:600; }
+#ec-flow .ec-badge { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; color:var(--ec-good); background:var(--ec-goodbg); border-radius:7px; padding:4px 7px; }
+#ec-flow .ec-badge.ec-learning { color:var(--ec-amber); background:var(--ec-amberbg); }
+#ec-flow .ec-phrase { border-bottom:1px solid var(--ec-line); padding:15px 0; }
+#ec-flow .ec-phrase:last-of-type { border-bottom:0; }
+#ec-flow .ec-phrase .ec-english { font-size:20px; line-height:1.5; margin:8px 0 3px; }
+#ec-flow .ec-phrase p { margin-bottom:7px; }
+#ec-flow .ec-phrase-button { font:inherit; border:0; padding:0; background:none; color:inherit; width:100%; text-align:left; }
+#ec-flow .ec-next { margin:18px 0; padding:15px; background:var(--ec-soft); border-radius:14px; }
+#ec-flow .ec-wave { display:flex; gap:4px; align-items:center; justify-content:center; height:55px; margin:15px 0; }
+#ec-flow .ec-wave span { width:4px; background:var(--ec-blue); border-radius:4px; }
+#ec-flow .ec-record { text-align:center; padding:12px 0; }
+#ec-flow .ec-record strong { color:var(--ec-blue); font-weight:600; }
+#ec-flow .ec-field { display:block; margin-bottom:14px; font-size:13px; color:var(--ec-ink); }
+#ec-flow .ec-field textarea, #ec-flow .ec-field select { font:inherit; font-size:16px; color:var(--ec-ink); background:var(--ec-paper); border:1px solid var(--ec-line); border-radius:12px; width:100%; padding:12px; margin-top:7px; }
+#ec-flow .ec-field textarea { min-height:118px; resize:vertical; }
+#ec-flow .ec-week { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin:20px 0 22px; text-align:center; }
+#ec-flow .ec-day { display:grid; gap:7px; justify-items:center; font-size:11px; color:var(--ec-muted); }
+#ec-flow .ec-day-dot { width:30px; height:30px; border-radius:50%; display:grid; place-items:center; background:var(--ec-paper); color:var(--ec-muted); }
+#ec-flow .ec-day-dot.ec-active { background:var(--ec-soft); color:var(--ec-blue); }
+#ec-flow .ec-day-dot svg { width:15px; height:15px; }
+#ec-flow .ec-setting { border-bottom:1px solid var(--ec-line); padding:16px 0; }
+#ec-flow .ec-setting:last-child { border-bottom:0; }
+#ec-flow .ec-toggle { display:flex; align-items:center; justify-content:space-between; gap:15px; font-size:14px; }
+#ec-flow .ec-toggle input { width:18px; height:18px; accent-color:var(--ec-blue); }
+#ec-flow .ec-empty { padding:22px 0; text-align:center; color:var(--ec-muted); }
+#ec-flow .ec-device.ec-large { font-size:17px; }
+#ec-flow .ec-device.ec-large .ec-sub, #ec-flow .ec-device.ec-large .ec-help { font-size:15px; }
+#ec-flow .ec-device.ec-large .ec-prompt .ec-english { font-size:30px; }
+#ec-flow .ec-device.ec-stack-help .ec-help-actions { grid-template-columns:1fr; }
+@media (max-width:590px) {
+  #ec-flow .ec-layout { grid-template-columns:minmax(0,388px); gap:20px; }
+  #ec-flow .ec-route { padding:0; }
+  #ec-flow .ec-route-list { grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
+  #ec-flow .ec-route-item { padding:0; }
+  #ec-flow .ec-route-item::after { display:none; }
+  #ec-flow .ec-extra { grid-template-columns:repeat(2,minmax(0,1fr)); margin-top:12px; gap:7px; }
+  #ec-flow .ec-route-list button { text-align:center; }
+  #ec-flow .ec-route-label { margin-bottom:8px; }
+  #ec-flow .ec-explainer { display:none; }
+  #ec-flow .ec-flow-head { flex-wrap:wrap; }
+}
+@media (max-width:370px) {
+  #ec-flow .ec-content { padding:10px 15px 22px; }
+  #ec-flow .ec-app-header { padding:8px 15px; }
+  #ec-flow .ec-content h1 { font-size:25px; }
+  #ec-flow .ec-prompt .ec-english { font-size:25px; }
+  #ec-flow .ec-help-actions { gap:6px; }
+  #ec-flow .ec-help { font-size:12px; }
+  #ec-flow .ec-device { border-radius:27px; }
+}
+@media (prefers-reduced-motion:no-preference) {
+  #ec-flow .ec-hint { animation:ec-reveal .16s ease-out; }
+  @keyframes ec-reveal { from { transform:translateY(-4px); opacity:.4; } to { transform:translateY(0); opacity:1; } }
+}
+</style>
+<div id="ec-flow">
+  <div class="ec-flow-head">
+    <span id="ec-current-label" aria-live="polite">今日の練習</span>
+    <span class="text-small text-muted">画面イメージ / 会話・記録はサンプル</span>
+  </div>
+  <div class="ec-layout">
+    <aside class="ec-route" aria-label="画面遷移図">
+      <p class="ec-route-label text-small text-muted">毎日の学習</p>
+      <ol class="ec-route-list">
+        <li class="ec-route-item"><button class="btn btn-block" type="button" data-screen="home" aria-pressed="true">1. 今日の練習</button></li>
+        <li class="ec-route-item"><button class="btn btn-block" type="button" data-screen="review" aria-pressed="false">2. 前回の復習</button></li>
+        <li class="ec-route-item"><button class="btn btn-block" type="button" data-screen="prepare" aria-pressed="false">3. 場面とお手本</button></li>
+        <li class="ec-route-item"><button class="btn btn-block" type="button" data-screen="lesson" aria-pressed="false">4. AIとの会話</button></li>
+        <li class="ec-route-item"><button class="btn btn-block" type="button" data-screen="check" aria-pressed="false">5. 自分で答える</button></li>
+        <li class="ec-route-item"><button class="btn btn-block" type="button" data-screen="summary" aria-pressed="false">6. 今日のまとめ</button></li>
+      </ol>
+      <div class="ec-explainer text-small text-muted">まとめ → 次の日の復習へ</div>
+      <div class="ec-extra" aria-label="ホームから開く画面">
+        <button class="btn btn-block" type="button" data-screen="phrases">表現集・詳細</button>
+        <button class="btn btn-block" type="button" data-screen="progress">学習記録</button>
+        <button class="btn btn-block" type="button" data-screen="personalize">言えなかったこと</button>
+        <button class="btn btn-block" type="button" data-screen="settings">設定</button>
+      </div>
+    </aside>
+    <div class="ec-stage">
+      <section class="ec-device" id="ec-phone" aria-label="iPhoneの画面イメージ">
+        <div class="ec-status" aria-hidden="true"><span>9:41</span><span class="ec-island"></span><span class="ec-status-icons"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
+        <div id="ec-app"></div>
+        <div class="ec-home-indicator" aria-hidden="true"></div>
+      </section>
+      <p class="ec-footer-note text-small text-muted" id="ec-transition">「今日の15分を始める」→ 前回の復習</p>
+    </div>
+  </div>
+</div>
+<script>
+(() => {
+  const root = document.getElementById('ec-flow');
+  const app = root.querySelector('#ec-app');
+  const phone = root.querySelector('#ec-phone');
+  const labels = {home:'今日の練習',review:'前回の復習',prepare:'場面とお手本',lesson:'AIとの会話',check:'自分で答える',summary:'今日のまとめ',phrases:'自分の表現集',detail:'表現の詳細',progress:'学習記録',settings:'設定',personalize:'言えなかったこと',personalPreview:'教材の確認'};
+  const transition = {home:'「今日の15分を始める」→ 前回の復習',review:'「今日の場面へ」→ 場面とお手本',prepare:'「会話を始める」→ AIとの会話',lesson:'補助を表示 → 録音 → 送信 → フィードバック',check:'補助なしで返答 → 今日のまとめ',summary:'表現を自動保存 → 翌日の復習へ',phrases:'表現を選ぶ → 意味・例文・復習',detail:'「この表現を練習」→ 前回の復習',progress:'表現を選ぶ → 練習の履歴',settings:'読み上げ・保存・予算を確認',personalize:'日本語で入力 → 教材の確認',personalPreview:'「次の練習に追加」→ 今日の練習'};
+  const state = {screen:'home',help:null,recording:false,feedback:false,heard:false,checkText:false,checkHint:false,checkTextUsed:false,checkHintUsed:false,usedHints:[],completed:false,added:false,phraseIndex:0,japanese:'会議の日程を変更してほしいと伝えたかった。',largeText:false,helpLayout:'two',slow:false,notice:''};
+  const escape = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const icon = name => `<i data-lucide="${name}" aria-hidden="true"></i>`;
+  const button = (label,action,extra='',symbol='') => `<button type="button" class="ec-button cursor-interaction ${extra}" data-action="${action}">${symbol?icon(symbol):''}${label}</button>`;
+  const wave = () => `<div class="ec-wave" aria-hidden="true">${[13,24,37,20,42,31,17,35,49,29,42,20,35,16,27,13].map(h=>`<span style="height:${h}px"></span>`).join('')}</div>`;
+  const header = (title,back='home',right='') => `<header class="ec-app-header"><button class="ec-back cursor-interaction" type="button" data-screen="${back}">${icon('chevron-left')}戻る</button><strong>${title}</strong><span class="ec-header-right">${right}</span></header>`;
+  const bar = n => `<div class="ec-progress" aria-label="学習の進み具合 ${n}/5">${[1,2,3,4,5].map(i=>`<span class="${i<=n?'ec-done':''}"></span>`).join('')}</div>`;
+  const tabs = active => `<nav class="ec-tabs" aria-label="アプリのメニュー">${[['home','house','今日'],['phrases','book-open','表現集'],['progress','chart-no-axes-column','記録'],['settings','settings-2','設定']].map(([s,i,t])=>`<button class="ec-tab cursor-interaction" type="button" data-screen="${s}" ${s===active?'aria-current="page"':''}>${icon(i)}<span>${t}</span></button>`).join('')}</nav>`;
+  const speaker = () => `<div class="ec-speaker"><span class="ec-avatar">${icon('audio-lines')}</span>英会話コーチ</div>`;
+  const audio = () => `<div class="ec-audio-actions"><button class="ec-audio cursor-interaction" type="button" data-action="listen">${icon('volume-2')}${state.heard?'もう一度聞く':'質問を聞く'}</button><button class="ec-audio cursor-interaction" type="button" data-action="slow">${icon('gauge')}${state.slow?'ゆっくりに設定':'ゆっくり'}</button></div>`;
+  const renderHome = () => `<header class="ec-app-header"><strong>今日の練習</strong><span class="ec-header-right">9月23日 水曜日</span></header><main class="ec-content"><p class="ec-sub">${state.completed?'今日も、おつかれさまでした。':'少しずつ、仕事で使える英語へ。'}</p><div class="ec-hero"><div class="ec-kicker">${icon('clock-3')}15分 / 自己紹介</div><h2>自分の仕事を<br>ひとことで。</h2><p class="ec-sub">初めて会う同僚に、<br>仕事と担当を伝える練習です。</p>${button(state.completed?'もう一度練習する':'今日の15分を始める','start','','play')}</div><h3>今日の流れ</h3><ol class="ec-list"><li><span class="ec-step-dot">1</span><span class="ec-list-main"><strong>前回の表現を思い出す</strong><br><small>I work in IT.</small></span><small>3分</small></li><li><span class="ec-step-dot">2</span><span class="ec-list-main"><strong>聞いて、声に出してみる</strong><br><small>お手本・会話・ひとりで確認</small></span><small>11分</small></li><li><span class="ec-step-dot">3</span><span class="ec-list-main"><strong>今日の表現を持ち帰る</strong></span><small>1分</small></li></ol><button type="button" class="ec-add cursor-interaction" data-screen="personalize">${icon('message-square-plus')}<span><strong>今日、言えなかったこと</strong><small>${state.added?'次の練習に1件追加しました':'日本語でメモして、次の練習へ'}</small></span></button></main>${tabs('home')}`;
+  const renderReview = () => `${header('前回の復習','home','3分')}<main class="ec-content">${bar(1)}<div class="ec-kicker">昨日の表現を、もう一度</div><h1>思い出して<br>言ってみましょう。</h1><div class="ec-prompt">${speaker()}<p class="ec-english">Where do you work?</p>${audio()}</div><p class="ec-sub">仕事について、短く答えてみましょう。</p>${state.help==='review'?`<div class="ec-hint"><p class="ec-inline-english">I work in IT.</p><p class="ec-small">ITの仕事をしています。</p></div>`:''}<button class="ec-help cursor-interaction" type="button" data-action="reviewHint" aria-expanded="${state.help==='review'}">${icon('lightbulb')}思い出すヒント</button>${state.feedback?`<div class="ec-feedback"><strong>前回の表現を使えました</strong><p class="ec-inline-english">I work in IT.</p><p class="ec-small">${state.help==='review'?'ヒントを使って返答':'サンプルの返答'}</p></div>${button('今日の場面へ','prepare','','chevron-right')}`:recordControls('reviewSend')}</main>`;
+  const renderPrepare = () => `${header('場面とお手本','review','2分')}<main class="ec-content">${bar(2)}<h1>新しい同僚に<br>話しかけられたら。</h1><p class="ec-sub">初対面の同僚に、どんな仕事をしているか聞かれました。</p><div class="ec-prompt">${speaker()}<p class="ec-english">What do you do?</p><p class="ec-sub">どんな仕事をしていますか？</p>${audio()}</div><h3>こんなふうに答えられます</h3><div class="ec-hint"><p class="ec-inline-english">I work in IT.</p><p class="ec-sub">ITの仕事をしています。</p><button class="ec-audio cursor-interaction" type="button" data-action="listen">${icon('volume-2')}お手本を聞く</button></div><p class="ec-small">お手本を聞いたら、声に出してまねしてみましょう。</p><div class="ec-controls">${button('会話を始める','lesson','','messages-square')}</div></main>`;
+  function recordControls(sendAction) { return `<div class="ec-controls">${state.recording?`<div class="ec-record"><strong>声を聞いています</strong>${wave()}<span class="ec-small">00:04</span></div>${button('止めて送信',sendAction,'ec-stop','square')}${button('録り直す','cancelRecord','ec-quiet')}`:`${button('録音する','record','','mic')}<p class="ec-small" style="text-align:center;margin:8px 0 0">話す準備ができてからで大丈夫。</p>`}</div>`; }
+  function helpPanel() {
+    if(state.help==='meaning') return `<div class="ec-hint"><p class="ec-intent">仕事について聞かれています</p><p>どんな仕事をしていますか？</p><p class="ec-small">職種や、働いている分野を答えましょう。</p></div>`;
+    if(state.help==='template') return `<div class="ec-hint"><p class="ec-intent">答え方の型</p><p class="ec-inline-english">I work in <u>IT</u>.</p><p class="ec-small">下線の部分を、自分の分野に置き換えます。</p><div class="ec-audio-actions"><button type="button" class="ec-audio cursor-interaction" data-action="listen">${icon('volume-2')}例を聞く</button></div></div>`;
+    if(state.help==='draft') return `<div class="ec-hint"><p class="ec-intent">言いたいことを日本語で</p><label class="ec-field">自分の答え<textarea id="ec-answer-draft" rows="2">ITの仕事をしています。</textarea></label>${button('答えのお手本を見る','draftExample','ec-secondary')}</div>`;
+    if(state.help==='draftResult') return `<div class="ec-hint"><p class="ec-intent">答えのお手本</p><p class="ec-inline-english">I work in IT.</p><p class="ec-small">お手本を聞いてから、自分の声で答えてみましょう。</p><button class="ec-audio cursor-interaction" type="button" data-action="listen">${icon('volume-2')}例を聞く</button></div>`;
+    return '';
+  }
+  const renderLesson = () => `${header('会話の練習','prepare','7分')}<main class="ec-content">${bar(3)}<div class="ec-between"><span class="ec-kicker">自己紹介 / 1問目</span><span class="ec-small">自分のペースで</span></div><div class="ec-prompt">${speaker()}<p class="ec-english">What do you do?</p>${audio()}</div><div class="ec-help-actions"><button type="button" class="ec-help cursor-interaction" data-action="meaning" aria-expanded="${state.help==='meaning'}">${icon('languages')}意味を見る</button><button type="button" class="ec-help cursor-interaction" data-action="template" aria-expanded="${state.help==='template'}">${icon('lightbulb')}答え方を見る</button></div>${helpPanel()}${state.feedback?`<div class="ec-answer"><div class="ec-small">あなたの返答</div><div>I work IT company.</div></div><div class="ec-feedback"><strong>仕事のことが伝わりました</strong><p class="ec-inline-english">I work at an IT company.</p><p class="ec-sub">「会社で働く」は work at。<br>at を添えると自然になります。</p></div>${button('自分で答えてみる','check','','chevron-right')}`:`<button class="ec-audio cursor-interaction" type="button" data-action="draft">${icon('pencil-line')}日本語で考える</button>${recordControls('lessonSend')}`}</main>`;
+  const renderCheck = () => `${header('自分で答える','lesson','2分')}<main class="ec-content">${bar(4)}<h1>お手本を見ずに、<br>答えてみましょう。</h1><p class="ec-sub">少し違う質問で、今日の表現を使ってみます。</p><div class="ec-prompt">${speaker()}${state.checkText?'<p class="ec-english">Can you tell me about your work?</p>':wave()}<button class="ec-audio cursor-interaction" type="button" data-action="listen">${icon('volume-2')}質問を聞く</button></div><div class="ec-help-actions"><button type="button" class="ec-help cursor-interaction" data-action="checkText">${icon('text')}英文を見る</button><button type="button" class="ec-help cursor-interaction" data-action="checkHint">${icon('languages')}意味を見る</button></div>${state.checkHint?'<div class="ec-hint"><p>あなたの仕事について教えてもらえますか？</p></div>':''}${state.feedback?`<div class="ec-feedback"><strong>今日の表現で返答できました</strong><p class="ec-inline-english">I work at an IT company.</p><p class="ec-small">${state.checkHint?'日本語の意味を見て返答':state.checkText?'英文を見て返答':'音声だけで聞いて返答'}</p></div>${button('今日のまとめを見る','finish','','check')}`:recordControls('checkSend')}</main>`;
+  const renderSummary = () => `${header('今日のまとめ','home','1分')}<main class="ec-content">${bar(5)}<div class="ec-kicker">${icon('circle-check')}レッスンの記録を保存しました</div><h1>今日のひとことを、<br>明日の会話へ。</h1><div class="ec-phrase"><span class="ec-badge">今日使えた表現</span><p class="ec-english">I work at an IT company.</p><p class="ec-sub">IT企業で働いています。</p><span class="ec-small">自分の仕事を紹介するときに</span></div><div class="ec-phrase"><span class="ec-badge ec-learning">もう一度練習</span><p class="ec-english">I'm responsible for testing.</p><p class="ec-sub">テストを担当しています。</p></div><div class="ec-next"><h3>明日は、別の質問で復習</h3><p class="ec-small" style="margin:0">「どんな会社で働いていますか？」<br>お手本を見ずに答えられるか確認します。</p></div>${button('表現集を見る','phrases','','book-open')}${button('今日の練習に戻る','home','ec-quiet')}</main>`;
+  const renderPhrases = () => `${header('自分の表現集','home')}<main class="ec-content"><h1>仕事で使える、<br>自分の言葉。</h1><p class="ec-sub">レッスンの表現が、ここにたまります。</p><div class="ec-phrase"><button type="button" class="ec-phrase-button cursor-interaction" data-screen="detail"><div class="ec-between"><span class="ec-badge">別の日にも言えた</span>${icon('chevron-right')}</div><p class="ec-english">I work in IT.</p><p class="ec-sub">ITの仕事をしています。</p></button></div><div class="ec-phrase"><button type="button" class="ec-phrase-button cursor-interaction" data-screen="detail"><div class="ec-between"><span class="ec-badge ec-learning">今日の確認ができた</span>${icon('chevron-right')}</div><p class="ec-english">I work at an IT company.</p><p class="ec-sub">IT企業で働いています。</p></button></div><div class="ec-phrase"><button type="button" class="ec-phrase-button cursor-interaction" data-screen="detail"><div class="ec-between"><span class="ec-badge ec-learning">練習中</span>${icon('chevron-right')}</div><p class="ec-english">I'm responsible for testing.</p><p class="ec-sub">テストを担当しています。</p></button></div></main>${tabs('phrases')}`;
+  const renderDetail = () => `${header('表現の詳細','phrases')}<main class="ec-content"><span class="ec-badge">別の日にも言えた</span><div class="ec-prompt"><p class="ec-english">I work in IT.</p><p class="ec-sub">ITの仕事をしています。</p><button class="ec-audio cursor-interaction" type="button" data-action="listen">${icon('volume-2')}表現を聞く</button></div><h3>こんなときに使います</h3><p class="ec-sub">自己紹介で、自分が働いている分野を短く伝えるとき。</p><div class="ec-hint"><p class="ec-small">相手の質問</p><p>What do you do?</p><p class="ec-small">自分の返答</p><p>I work in IT.</p></div><h3>練習の記録</h3><ul class="ec-list"><li><span class="ec-step-dot">✓</span><span class="ec-list-main"><strong>9月21日</strong><br><small>答え方の型を見て返答</small></span></li><li><span class="ec-step-dot">✓</span><span class="ec-list-main"><strong>9月23日</strong><br><small>別の質問に、補助なしで返答</small></span></li></ul>${button('この表現を練習する','review','','mic')}</main>`;
+  const renderProgress = () => `${header('学習記録','home')}<main class="ec-content"><h1>少しずつ、<br>自分で言える。</h1><p class="ec-sub">今週の練習</p><div class="ec-week">${['月','火','水','木','金','土','日'].map((d,i)=>`<div class="ec-day"><span>${d}</span><span class="ec-day-dot ${i<3?'ec-active':''}">${i<3?icon('check'):i+21}</span></div>`).join('')}</div><h3>別の日にも使えた表現</h3><div class="ec-phrase"><button type="button" class="ec-phrase-button cursor-interaction" data-screen="detail"><div class="ec-between"><span class="ec-english">I work in IT.</span>${icon('chevron-right')}</div><p class="ec-sub">9月21日 → 9月23日</p><span class="ec-badge">別の質問にも補助なしで返答</span></button></div><div class="ec-next"><h3>次はここを練習</h3><p>担当していることを伝える</p><p class="ec-small" style="margin:0">I'm responsible for testing.</p></div>${button('今日の練習へ','home','','play')}</main>${tabs('progress')}`;
+  const renderSettings = () => `${header('設定','home')}<main class="ec-content"><h1>自分のペースに。</h1><div class="ec-setting"><label class="ec-field">読み上げの速さ<select id="ec-speed"><option value="normal" ${!state.slow?'selected':''}>ふつう</option><option value="slow" ${state.slow?'selected':''}>ゆっくり</option></select></label></div><div class="ec-setting"><label class="ec-toggle">文字を大きくする<input id="ec-large" type="checkbox" ${state.largeText?'checked':''}></label></div><div class="ec-setting"><h3>学習の保存先</h3><p>このiPhone</p><p class="ec-small" style="margin:0">会話の文字・表現・学習記録を保存。<br>録音は学習履歴に残しません。</p></div><div class="ec-setting"><h3>AI利用の予算</h3><div class="ec-between"><span class="ec-sub">月の目安</span><strong>1,000円以内</strong></div><p class="ec-small" style="margin:8px 0 0">上限が近づいたら、保存済み表現の復習へ。</p></div><div class="ec-setting"><h3>最初の学習順</h3><p class="ec-small" style="margin:0">自己紹介 → 雑談 → 短いプレゼン</p></div></main>${tabs('settings')}`;
+  const renderPersonalize = () => `${header('言えなかったこと','home')}<main class="ec-content"><h1>あのときの一言を、<br>次の練習に。</h1><p class="ec-sub">仕事で伝えたかったことを、日本語でメモしましょう。</p><label class="ec-field">言いたかったこと<textarea id="ec-japanese" maxlength="400">${escape(state.japanese)}</textarea></label><p class="ec-small">短いメモで大丈夫です。</p><div class="ec-controls">${button('練習内容を確認','personalPreview','','sparkles')}</div><div class="ec-next"><h3>次のレッスンで練習</h3><p class="ec-small" style="margin:0">場面・短い英文・相手からの質問をセットにして、自分の声で練習します。</p></div></main>`;
+  const renderPersonalPreview = () => `${header('教材の確認','personalize')}<main class="ec-content"><h1>次は、この場面を。</h1><p class="ec-sub">${escape(state.japanese)}</p><div class="ec-prompt"><p class="ec-kicker">日程の変更をお願いする例</p><p class="ec-english">Could we reschedule the meeting?</p><p class="ec-sub">会議の日程を変更できますか？</p></div><div class="ec-next"><h3>こんな流れで練習します</h3><p class="ec-small" style="margin:0">相手に変更をお願いする → 都合を聞かれる → 希望を伝える</p></div>${button('次の練習に追加','addPersonal','','plus')}${button('日本語のメモを直す','personalize','ec-quiet')}</main>`;
+  const views = {home:renderHome,review:renderReview,prepare:renderPrepare,lesson:renderLesson,check:renderCheck,summary:renderSummary,phrases:renderPhrases,detail:renderDetail,progress:renderProgress,settings:renderSettings,personalize:renderPersonalize,personalPreview:renderPersonalPreview};
+  function render() {
+    phone.classList.toggle('ec-large',state.largeText);
+    phone.classList.toggle('ec-stack-help',state.helpLayout==='stack');
+    app.innerHTML = views[state.screen]();
+    if(state.screen==='phrases') app.querySelectorAll('.ec-phrase-button').forEach((el,i)=>el.dataset.phrase=String(i));
+    if(state.screen==='detail') {
+      const phrases = [
+        ['I work in IT.','ITの仕事をしています。','自己紹介で、自分が働いている分野を短く伝えるとき。','What do you do?','別の日にも言えた'],
+        ['I work at an IT company.','IT企業で働いています。','自分がどんな会社で働いているか伝えるとき。','Where do you work?','今日の確認ができた'],
+        ["I'm responsible for testing.",'テストを担当しています。','自分が担当している仕事を伝えるとき。','What are you responsible for?','練習中']
+      ];
+      const selected=phrases[state.phraseIndex]||phrases[0];
+      const content=app.querySelector('.ec-content');
+      content.querySelector('.ec-badge').textContent=selected[4];
+      content.querySelector('.ec-prompt .ec-english').textContent=selected[0];
+      content.querySelector('.ec-prompt .ec-sub').textContent=selected[1];
+      content.querySelector('h3 + .ec-sub').textContent=selected[2];
+      const hintLines=content.querySelectorAll('.ec-hint p');hintLines[1].textContent=selected[3];hintLines[3].textContent=selected[0];
+      if(state.phraseIndex>0) content.querySelector('.ec-list').innerHTML=`<li><span class="ec-step-dot">✓</span><span class="ec-list-main"><strong>9月23日</strong><br><small>${state.phraseIndex===1?'同じ日の確認で返答':'答え方の型を使って練習'}</small></span></li>`;
+    }
+    if(state.screen==='check' && state.feedback) app.querySelector('.ec-feedback .ec-small').textContent=state.checkHintUsed?'日本語の意味を見て返答':state.checkTextUsed?'英文を見て返答':'音声だけで聞いて返答';
+    if(state.screen==='review' && state.feedback) app.querySelector('.ec-feedback .ec-small').textContent=state.usedHints.includes('review')?'ヒントを使って返答':'サンプルの返答';
+    root.querySelector('#ec-current-label').textContent = labels[state.screen];
+    root.querySelector('#ec-transition').textContent = state.notice || transition[state.screen];
+    root.querySelectorAll('.ec-route [data-screen]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.screen===state.screen || el.dataset.screen==='phrases'&&state.screen==='detail' || el.dataset.screen==='personalize'&&state.screen==='personalPreview')));
+    if(globalThis.lucide) globalThis.lucide.createIcons({attrs:{width:16,height:16}});
+  }
+  function persist() {
+    if(window.openai?.setWidgetState) window.openai.setWidgetState({modelContent:{screen:labels[state.screen],largeText:state.largeText,helpLayout:state.helpLayout},privateContent:{screen:state.screen,help:state.help,completed:state.completed,added:state.added,largeText:state.largeText,helpLayout:state.helpLayout,slow:state.slow,checkHint:state.checkHint,checkText:state.checkText,checkHintUsed:state.checkHintUsed,checkTextUsed:state.checkTextUsed,phraseIndex:state.phraseIndex}}).catch(()=>{});
+  }
+  function restore(saved) {
+    const s=saved?.privateContent;
+    if(!s||typeof s!=='object') return;
+    if(Object.hasOwn(views,s.screen)) state.screen=s.screen;
+    for(const key of ['completed','added','largeText','slow','checkHint','checkText','checkHintUsed','checkTextUsed']) if(typeof s[key]==='boolean') state[key]=s[key];
+    if([0,1,2].includes(s.phraseIndex)) state.phraseIndex=s.phraseIndex;
+    if(['two','stack'].includes(s.helpLayout)) state.helpLayout=s.helpLayout;
+    if([null,'meaning','template','draft','draftResult','review'].includes(s.help)) state.help=s.help;
+  }
+  function navigate(screen) { if(!Object.hasOwn(views,screen)) return; state.screen=screen; state.recording=false; state.feedback=false; state.help=null; state.heard=false; state.notice=''; render(); persist(); }
+  function showHelp(kind) { state.help=state.help===kind?null:kind; if(state.help&&!state.usedHints.includes(kind)) state.usedHints.push(kind); }
+  root.addEventListener('click',event=>{
+    const el=event.target.closest('button');
+    if(!el||!root.contains(el)) return;
+    if(el.dataset.phrase!==undefined) state.phraseIndex=Number(el.dataset.phrase);
+    if(el.dataset.screen) {navigate(el.dataset.screen);return;}
+    const action=el.dataset.action;
+    if(!action) return;
+    if(Object.hasOwn(views,action)) {navigate(action);return;}
+    state.notice='';
+    if(action==='start') {state.usedHints=[];state.checkText=false;state.checkHint=false;state.checkTextUsed=false;state.checkHintUsed=false;navigate('review');return;}
+    if(action==='record') state.recording=true;
+    else if(action==='cancelRecord') state.recording=false;
+    else if(['reviewSend','lessonSend','checkSend'].includes(action)) {state.recording=false;state.feedback=true;state.help=null;}
+    else if(action==='meaning'||action==='template'||action==='draft') showHelp(action);
+    else if(action==='reviewHint') showHelp('review');
+    else if(action==='draftExample') {state.help='draftResult';state.notice='英文のお手本は、このモックアップのサンプルです';}
+    else if(action==='checkText') {state.checkText=!state.checkText;state.checkTextUsed=true;}
+    else if(action==='checkHint') {state.checkHint=!state.checkHint;state.checkHintUsed=true;}
+    else if(action==='listen') {state.heard=true;state.notice='読み上げボタンの操作イメージ（音声は再生しません）';}
+    else if(action==='slow') {state.slow=!state.slow;state.notice=state.slow?'ゆっくり再生を選択':'ふつうの速さを選択';}
+    else if(action==='finish') {state.completed=true;navigate('summary');return;}
+    else if(action==='addPersonal') {state.added=true;navigate('home');return;}
+    render();persist();
+  });
+  root.addEventListener('input',event=>{if(event.target.id==='ec-japanese')state.japanese=event.target.value;});
+  root.addEventListener('change',event=>{
+    if(event.target.id==='ec-speed')state.slow=event.target.value==='slow';
+    else if(event.target.id==='ec-large')state.largeText=event.target.checked;
+    else return;
+    render();persist();
+  });
+  restore(window.openai?.widgetState);render();
+  window.addEventListener('openai:set_globals',event=>{if(event.detail?.globals?.widgetState){restore(event.detail.globals.widgetState);render();}});
+  if(globalThis.Tweak) {
+    const tweak = new Tweak({container:phone,onChange:()=>{render();persist();}});
+    tweak.addToggle(state,'largeText',{label:'文字を大きくする'});
+    tweak.addSelect(state,'helpLayout',{label:'補助ボタンの配置',options:[{label:'2列',value:'two'},{label:'縦に並べる',value:'stack'}]});
+  }
+})();
+</script>
