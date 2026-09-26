@@ -12,6 +12,8 @@
 
 作成日：2026-09-26。準備・初回Git保存の後、「すすめて」を受け実装を開始。チェックボックスは実施した範囲だけ更新する。実機確認はコードの実装と別に扱い、[検証記録](../../iphone-validation.md)に残す。
 
+現在はTask 1・2のコードを実装し、26テスト・型チェック・lint・Expo Doctor・iOS向けexportを確認済み。Task 1・2のiPhone完了条件は未達。Task 3〜7は未着手。アプリは最初の質問の録音/破棄までで、AIへの送信、次の質問、端末保存、まとめ、復習はまだつながっていない。
+
 ## Global Constraints
 
 - 開発環境はWindows、確認端末はiPhone。初期は1か所のチェックアウトで順に進める。
@@ -80,7 +82,7 @@ flowchart LR
 | `mobile/src/review/{clock,scheduler}.ts` | 学習日の計算、翌日候補、達成の判定 |
 | `api/src/{index,auth,budget,requests,provider,schemas}.ts` | ルーティング、端末認証、利用枠、処理ID管理、AI呼び出し、入出力検証 |
 | `api/migrations/0001_device_usage.sql` | トークンのハッシュ、月利用枠、処理状態。会話本文を含めない |
-| `docs/{api-contract,iphone-validation}.md` | API仕様とiPhone検証記録。今回の準備ではまだ作成しない |
+| `docs/{api-contract,iphone-validation}.md` | API仕様とiPhone検証記録。検証記録を作成済み、API仕様はTask 3で作る |
 
 ### データ契約の暫定案
 
@@ -120,12 +122,13 @@ flowchart LR
 **Interfaces:** `getQuestion(questionId: string): Question`、`lessonReducer(state: LessonState, event: LessonEvent): LessonState`。Questionは上記教材のID・英語・日本語の意図/意味・型・例を持つ。LessonStateはSession・現在のAttempt・録音/通信状態を持つ。
 
 - [ ] U1/U2を確認し、採用SDKと実機のExpo Go互換性を記録する。既存docsを保護するため、リポジトリ直下ではなく空の `mobile/` に初期化する。
-- [ ] 作業ルートから `npx.cmd create-expo-app@latest mobile --template blank-typescript --no-agents-md` を実行する前に当日のCLIでオプションを確認する。未対応なら `--no-agents-md` を外し、生成AGENTSとこのルールを整合させる。採用版がExpo Go非対応なら対応するテンプレート版を明示する。生成物内に別のGitリポジトリを作らない。
-- [ ] `mobile` に `typecheck`（`tsc --noEmit`）、`lint`、`test`（jest-expo）、`start`（Expo）を用意し、TypeScript strictとlockfileを管理する。Expo依存は互換バージョンで導入する。
-- [ ] 先に状態テストを書く。意味を開閉しても `support.meaningViewed === true`、初回はprepare、通常練習は英文表示、check/reviewは英文非表示、補助操作だけではfeedbackへ進まないことをassertする。
-- [ ] `npm.cmd test -- --runInBand`（作業場所 `mobile`）で未実装による失敗を確認し、最小の状態遷移と日本語補助UIを実装して成功させる。
-- [ ] `npm.cmd run typecheck` と `npm.cmd run lint`、`npx.cmd expo-doctor` を実行し、`npx.cmd expo start --go` でiPhoneに質問を表示する。架空の応答モードは画面で明示する。
-- [ ] 検証結果をREADMEに反映し、`feat: add self-introduction lesson shell` でコミットする。
+- [x] 当日のCLIオプションを確認して `--template blank-typescript@sdk-57 --no-agents-md --yes` で `mobile/` を初期化。生成物内に別のGitリポジトリがないことを確認。
+- [x] `mobile` に `typecheck`（`tsc --noEmit`）、`lint`、`test`（jest-expo）、`start`（Expo）を用意し、TypeScript strictとlockfileを管理する。Expo依存は互換バージョンで導入する。
+- [x] 先に状態テストを書く。意味を開閉しても `support.meaningViewed === true`、初回はprepare、通常練習は英文表示、check/reviewは英文非表示、補助操作だけではfeedbackへ進まないことをassertする。
+- [x] `npm.cmd test -- --runInBand`（作業場所 `mobile`）で未実装による失敗を確認し、最小の状態遷移と日本語補助UIを実装して成功させる。
+- [x] `npm.cmd run typecheck` と `npm.cmd run lint`、`npx.cmd expo-doctor` を実行する。
+- [ ] `npx.cmd expo start --go` でiPhoneに質問を表示する。架空の応答モードは画面で明示する。
+- [x] 検証結果をREADMEに反映し、`feat: add self-introduction lesson shell` でコミットする（`222eb2c`）。
 
 **完了条件:** Windowsから起動したアプリがiPhoneで開き、意味と回答例を任意に表示できる。まだAI対応済みとは表示しない。
 
@@ -133,11 +136,12 @@ flowchart LR
 
 **Files:** `mobile/src/audio/recorder.ts`, `speech.ts`, `recorder.test.ts`、Lesson画面、`mobile/app.json`, package/lockfile、`docs/iphone-validation.md`。
 
-**Interfaces:** `startRecording(): Promise<void>`、`stopRecording(): Promise<Recording>`、`discardRecording(recording: Recording): Promise<void>`、`speakEnglish(text: string, slow: boolean): Promise<void>`、`stopSpeech(): Promise<void>`。Recordingは `uri`, `mimeType`, `durationMs`, `sizeBytes` を持つ。
+**Interfaces:** `startRecording(): Promise<void>`、`stopRecording(): Promise<Recording | null>`、`discardRecording(): Promise<boolean>`、`speakEnglish(text: string, slow: boolean): Promise<void>`、`stopSpeech(): Promise<void>`。Recordingは `uri`, `mimeType`, `durationMs`, `sizeBytes` を持つ。コントローラーが現在の録音を保持し、破棄の成功を返す。失敗時はファイルと再試行手段を残し、画面を離れない。低レベルdriverが `discard(recording): Promise<void>` を担当する。
 
-- [ ] `npx.cmd expo install expo-audio expo-speech expo-file-system` を `mobile` で実行し、選択SDKのAPIでアダプターを作る準備をする。バックグラウンド録音は有効にしない。
-- [ ] 権限拒否なら録音しない、開始前にTTSを止める、取消で送信せず削除、90秒で自動停止して送信は本人が選ぶ、5,000,001 bytesなら送信不可、というテストを書き失敗を確認する。
-- [ ] 最小実装後に関連テストを通す。短すぎる録音の暫定値は1秒未満。無音の検出/文字起こし空欄の扱いは実機とAPIで調整し、学習失敗にしない。失敗録音は再送/破棄まで一時保持し、ファイル消失時は再録音に戻す。
+- [x] `npx.cmd expo install expo-audio expo-speech expo-file-system` を実行し、SDK 57のアダプターを作成。peer依存 `expo-asset` も追加。バックグラウンド録音は無効。
+- [x] 権限拒否なら録音しない、開始前にTTSを止める、取消で送信せず削除、90秒で自動停止して送信は本人が選ぶ、5,000,001 bytesなら送信不可、というテストを書き失敗を確認する。
+- [x] 最小実装後に関連テストを通す。1秒未満や空ファイルをエラーにし、破棄して録り直せるようにする。読み上げの遅延開始、ネイティブ自動停止/中断、削除失敗の回帰テストも追加する。
+- [ ] 無音の検出/文字起こし空欄の扱いは実機とAPIで調整し、学習失敗にしない。失敗録音の再送/アプリ再起動後の回復はTask 3・4と結合して確認する。
 - [ ] iPhoneで通常録音、権限拒否/再許可、サイレントモード、録音中のロック/中断、再起動後の一時ファイルを確認する。バックグラウンド移行時は録音を停止し、復帰後に再録音/破棄を案内する。
 - [ ] AAC/M4A候補の実際のMIME・長さ・サイズを記録し、AI APIの受理をTask 3で確認する。音声そのものはGitに入れない。`feat: add recording and speech adapters` でコミットする。
 

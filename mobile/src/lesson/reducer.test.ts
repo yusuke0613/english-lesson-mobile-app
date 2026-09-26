@@ -40,4 +40,15 @@ describe('lesson learning evidence', () => {
     expect(state.support.englishViewed).toBe(false);
     expect(state.visibleSupport.meaning).toBe(false);
   });
+
+  test('replay, slow speech and examples retain separate evidence', () => {
+    let state = createLessonState('check', '2026-09-26T01:00:00Z', 'check');
+    state = lessonReducer(state, { type: 'QUESTION_PLAYED', slow: false });
+    state = lessonReducer(state, { type: 'QUESTION_PLAYED', slow: true });
+    state = lessonReducer(state, { type: 'EXAMPLE_PLAYED' });
+    expect(state.support.playCount).toBe(2);
+    expect(state.support.slowPlayed).toBe(true);
+    expect(state.support.examplePlayed).toBe(true);
+    expect(state.support.englishViewed).toBe(false);
+  });
 });

@@ -2,7 +2,7 @@
 
 日本語の補助を使いながら、1日15分を目安にビジネス英会話を練習するiPhoneアプリです。WindowsでExpo＋React Native＋TypeScriptを使って開発します。
 
-**Expoアプリの土台を実装中です。** `mobile/` にホーム、導入、英語の質問、日本語の意味・回答例の表示とテストがあります。録音・AI応答・永続保存はまだ未実装です。`docs/english-coach-flow.html` は元の操作イメージとして残しています。
+**質問・日本語補助・録音の土台を実装しました。** `mobile/` にホーム、導入、質問と回答例、読み上げ、録音・停止・破棄の実装があります。iPhone実機の音声確認は未実施で、AI応答・永続保存・まとめ・翌日復習は未実装です。`docs/english-coach-flow.html` は元の操作イメージとして残しています。
 
 ## 最初の到達点
 
@@ -27,6 +27,7 @@ flowchart LR
 | [画面イメージ](docs/english-coach-flow.html) | 画面遷移・日本語の補助・学習記録のモック |
 | [決定事項・未決事項](docs/development-readiness.md) | 確定条件、提案、実装前の確認事項、モックとの差分 |
 | [自己紹介1レッスンの実装計画](docs/superpowers/plans/2026-09-26-self-introduction.md) | 実装順序、対象ファイル、データとAPIの境界、受け入れ条件 |
+| [実機・開発検証記録](docs/iphone-validation.md) | 実行済みの検証、未確認事項、次のiPhone確認手順 |
 | [AGENTS.md](AGENTS.md) | このリポジトリで作業するエージェント向けのルール |
 
 記述が異なる場合は、最新のユーザー指示、確定条件、実装計画の暫定方針、元の設計提案、HTMLのサンプルの順で扱います。提案をユーザーが承認済みの条件として扱わず、変更の理由と状態を資料に残します。
@@ -53,6 +54,8 @@ WindowsとiPhoneを同じWi-Fiに接続し、ターミナルのQRコードをiPh
 
 ブラウザーでの画面確認は `npm.cmd run web`。これはiPhoneの録音・読み上げ・保存の確認を代替しません。検証状況は[実機検証記録](docs/iphone-validation.md)に記載します。
 
+現在は最初の質問で読み上げ・録音・破棄を確認する段階です。録音は最大90秒で停止し、AIへは送信しません。再起動後の一時ファイル回復は今後対応します。録音の確認には架空の呼び名を使ってください。
+
 ```powershell
 # mobile/ 内で実行
 npm.cmd run typecheck
@@ -67,7 +70,7 @@ npx.cmd expo-doctor
 - Node.js LTSとnpmを使い、初期化時にExpo SDK・React Native・TypeScriptの互換バージョンを決めてlockfileをコミットします。[Expoの作成手順](https://docs.expo.dev/get-started/create-a-project/)
 - 最初の実機確認はiPhoneのExpo Goを使用します。WindowsとiPhoneを同じWi-Fiに接続し、LAN接続を確認します。接続できない場合はWindows Firewall・ネットワーク分離を確認し、必要に応じてExpoのトンネルを使います。
 - Windows上のiOSシミュレーターを前提にしません。独立したアプリに進む段階でEASのクラウドビルドと署名・配布条件を確認します。[Expo FAQ](https://docs.expo.dev/faq/#can-i-develop-ios-apps-on-a-windows-computer)
-- 録音は `expo-audio`、読み上げは `expo-speech` を第一候補にします。iPhoneのサイレントモードでは `expo-speech` が無音になるため、解除した状態と無音時の案内を実機確認します。[Audio](https://docs.expo.dev/versions/latest/sdk/audio/)・[Speech](https://docs.expo.dev/versions/latest/sdk/speech/)
+- 録音は `expo-audio`、読み上げは `expo-speech` を採用しました。iPhoneのサイレントモードでは `expo-speech` が無音になるため、解除した状態と無音時の案内を実機確認します。[Audio](https://docs.expo.dev/versions/latest/sdk/audio/)・[Speech](https://docs.expo.dev/versions/latest/sdk/speech/)
 
 ## 秘密情報とデータ
 
@@ -81,4 +84,4 @@ AI事業者のAPIキーはバックエンドだけに置きます。アプリ内
 
 この準備一式を `main` の初回コミットとします。その後の実装は同じ作業場所で `codex/<内容>` ブランチを使い、小さい単位でコミットします。土台が固まるまではworktreeを作りません。導入条件は[実装計画](docs/superpowers/plans/2026-09-26-self-introduction.md#作業場所とgit運用)に記載しています。
 
-型チェック・lint・状態/画面のテストとExpo診断を実行します。iPhone実機で未確認の項目は、ブラウザーや自動テストの成功で代替せず未確認として残します。
+型チェック・lint・26件のテスト・Expo Doctor 21項目が成功し、iOS向けJavaScriptバンドルを生成済みです。ネイティブビルドやiPhone実行の成功を意味しません。実機で未確認の項目は、ブラウザーや自動テストの成功で代替せず未確認として残します。

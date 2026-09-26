@@ -9,6 +9,8 @@ export function createLessonState(sessionId: string, startedAt: string, mode?: '
 }
 export function lessonReducer(state: LessonState, event: LessonEvent): LessonState {
   switch (event.type) {
+    case 'QUESTION_PLAYED': return { ...state, support: { ...state.support, playCount: state.support.playCount + 1, slowPlayed: state.support.slowPlayed || event.slow } };
+    case 'EXAMPLE_PLAYED': return { ...state, support: { ...state.support, examplePlayed: true } };
     case 'START_PRACTICE': return state.phase === 'prepare' ? { ...state, phase: 'practice' } : state;
     case 'TOGGLE_SUPPORT': {
       const visible = !state.visibleSupport[event.kind];

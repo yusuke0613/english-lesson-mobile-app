@@ -10,4 +10,5 @@ export type LessonState = {
   questionId: QuestionId; visibleSupport: VisibleSupport; support: SupportUsage;
   status: 'idle'; attempts: Attempt[];
 };
-export type LessonEvent = { type: 'START_PRACTICE' } | { type: 'TOGGLE_SUPPORT'; kind: SupportKind };
+export type LessonEvent = { type: 'START_PRACTICE' } | { type: 'TOGGLE_SUPPORT'; kind: SupportKind }
+  | { type: 'QUESTION_PLAYED'; slow: boolean } | { type: 'EXAMPLE_PLAYED' };

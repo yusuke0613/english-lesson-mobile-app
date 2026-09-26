@@ -83,4 +83,6 @@ Expo公式資料を2026-09-26に確認した範囲では、Windowsでの作成�
 
 - U1：Expoの安定版SDK 57を採用。React 19.2.3 / React Native 0.86.3 / TypeScript ~6.0.3をlockfileで固定。Expo Doctor 21/21成功。本人のExpo Goとの接続は未確認。
 - U2：iPhone情報は確認待ち。ブラウザーの390×844表示でTask 1の画面操作を確認済み。
-- Task 1のコード・自動検証を先行し、Task 2へ進める。実機完了条件は未達のまま残す。[検証記録](iphone-validation.md)を参照。
+- Task 1・2のコードを実装。26テスト、型チェック、lint、Expo Doctor、iOS向けexportが成功。iPhoneでの音声・権限・中断は未確認。[検証記録](iphone-validation.md)を参照。
+- 音声は `expo-audio` / `expo-speech` / `expo-file-system` を採用。90秒・5MBを上限とし、削除に失敗した録音を保持して再試行できる。強制終了後の回復はTask 4の残件。
+- U3/U4：AIとCloudflareのアカウント準備状況は回答待ち。APIキー・端末トークンは未設定で、有料API呼び出し・外部デプロイは行っていない。モデル・料金の選定と契約の固定はTask 3で行う。
