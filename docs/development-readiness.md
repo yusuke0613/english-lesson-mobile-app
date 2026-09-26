@@ -2,7 +2,7 @@
 
 整理日：2026-09-26。根拠は[設計案](english-coach-design.md)、[画面イメージ](english-coach-flow.html)、今回の開発準備依頼。
 
-「確定」はユーザーが指定した条件、「提案」は原資料の具体化案、「暫定」は今回の実装計画を組むための方針を表す。提案・暫定はユーザーによる承認済みを意味しない。アプリの実装・実機検証はまだない。
+「確定」はユーザーが指定した条件、「提案」は原資料の具体化案、「暫定」は今回の実装計画を組むための方針を表す。提案・暫定はユーザーによる承認済みを意味しない。準備後の「すすめて」を受け、アプリの実装を開始した。実機検証はまだない。
 
 ## 1. 確定している条件
 
@@ -79,4 +79,8 @@ Expo公式資料を2026-09-26に確認した範囲では、Windowsでの作成�
 - [SQLite](https://docs.expo.dev/versions/latest/sdk/sqlite/)・[SecureStore](https://docs.expo.dev/versions/latest/sdk/securestore/)
 - [公開環境変数に秘密を置かない](https://docs.expo.dev/guides/environment-variables/#security-considerations)
 
-次の作業は[実装計画](superpowers/plans/2026-09-26-self-introduction.md)のTask 1。結果に応じて上記U1–U11の状態と根拠を更新する。
+## 6. 実装開始後の更新
+
+- U1：Expoの安定版SDK 57を採用。React 19.2.3 / React Native 0.86.3 / TypeScript ~6.0.3をlockfileで固定。Expo Doctor 21/21成功。本人のExpo Goとの接続は未確認。
+- U2：iPhone情報は確認待ち。ブラウザーの390×844表示でTask 1の画面操作を確認済み。
+- Task 1のコード・自動検証を先行し、Task 2へ進める。実機完了条件は未達のまま残す。[検証記録](iphone-validation.md)を参照。

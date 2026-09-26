@@ -2,7 +2,7 @@
 
 日本語の補助を使いながら、1日15分を目安にビジネス英会話を練習するiPhoneアプリです。WindowsでExpo＋React Native＋TypeScriptを使って開発します。
 
-**現在は設計・開発準備の段階です。アプリ本体、API、データベース、テスト環境は未実装です。** `docs/english-coach-flow.html` は操作イメージであり、録音・音声再生・AI応答・学習履歴保存は実装されていません。
+**Expoアプリの土台を実装中です。** `mobile/` にホーム、導入、英語の質問、日本語の意味・回答例の表示とテストがあります。録音・AI応答・永続保存はまだ未実装です。`docs/english-coach-flow.html` は元の操作イメージとして残しています。
 
 ## 最初の到達点
 
@@ -41,11 +41,29 @@ Start-Process .\docs\english-coach-flow.html
 
 ボタンによる画面遷移を確認できます。元の表示環境のアイコン・外側の装飾に依存する箇所があり、ブラウザー単独では表示が一部異なります。日付・会話・達成表示は固定サンプルです。通常のブラウザーでの再読込後の保存もありません。
 
-まだ `package.json` はないため、現時点で `npm install` や `npm start` によるアプリ起動はできません。アプリ初期化は実装計画のTask 1で行います。
+Expoアプリは次の手順で起動します。
+
+```powershell
+cd .\mobile
+npm.cmd ci
+npm.cmd start
+```
+
+WindowsとiPhoneを同じWi-Fiに接続し、ターミナルのQRコードをiPhoneのカメラで読み、Expo Goで開きます。SDK 57に対応するExpo Goが必要です。[Expo Goの対応SDK](https://expo.dev/go)
+
+ブラウザーでの画面確認は `npm.cmd run web`。これはiPhoneの録音・読み上げ・保存の確認を代替しません。検証状況は[実機検証記録](docs/iphone-validation.md)に記載します。
+
+```powershell
+# mobile/ 内で実行
+npm.cmd run typecheck
+npm.cmd run lint
+npm.cmd test -- --runInBand
+npx.cmd expo-doctor
+```
 
 ## Windows＋iPhoneでの開発方針
 
-- 最初はこのリポジトリ1か所で、1つの作業を順番に進めます。`mobile/` と `api/` を後で同じリポジトリ内に作る計画です。
+- 最初はこのリポジトリ1か所で、1つの作業を順番に進めます。`mobile/` は作成済みで、`api/` は後で同じリポジトリ内に作る計画です。
 - Node.js LTSとnpmを使い、初期化時にExpo SDK・React Native・TypeScriptの互換バージョンを決めてlockfileをコミットします。[Expoの作成手順](https://docs.expo.dev/get-started/create-a-project/)
 - 最初の実機確認はiPhoneのExpo Goを使用します。WindowsとiPhoneを同じWi-Fiに接続し、LAN接続を確認します。接続できない場合はWindows Firewall・ネットワーク分離を確認し、必要に応じてExpoのトンネルを使います。
 - Windows上のiOSシミュレーターを前提にしません。独立したアプリに進む段階でEASのクラウドビルドと署名・配布条件を確認します。[Expo FAQ](https://docs.expo.dev/faq/#can-i-develop-ios-apps-on-a-windows-computer)
@@ -63,4 +81,4 @@ AI事業者のAPIキーはバックエンドだけに置きます。アプリ内
 
 この準備一式を `main` の初回コミットとします。その後の実装は同じ作業場所で `codex/<内容>` ブランチを使い、小さい単位でコミットします。土台が固まるまではworktreeを作りません。導入条件は[実装計画](docs/superpowers/plans/2026-09-26-self-introduction.md#作業場所とgit運用)に記載しています。
 
-現時点の確認は資料の整合性・リンク・差分・秘密情報の混入を対象にします。アプリの型チェック、テスト、iPhoneでの動作確認は実装後に行い、未実施を成功扱いにしません。
+型チェック・lint・状態/画面のテストとExpo診断を実行します。iPhone実機で未確認の項目は、ブラウザーや自動テストの成功で代替せず未確認として残します。

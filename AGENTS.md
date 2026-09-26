@@ -8,7 +8,7 @@
 4. `docs/superpowers/plans/2026-09-26-self-introduction.md`
 5. UIを扱うときは `docs/english-coach-flow.html`
 
-現在は資料と開発準備だけがある。HTMLはモックであり、Expoアプリや動作実績として扱わない。以下のコーディング・検証ルールは本体実装を始めた段階から適用する。
+`mobile/` でExpoアプリを実装中。HTMLは元のモックであり、Expoアプリや実機での動作実績として扱わない。現在の到達点と確認結果はREADMEと `docs/iphone-validation.md` を参照する。
 
 ## スコープと判断
 
