@@ -2,7 +2,7 @@
 
 日本語の補助を使いながら、1日15分を目安にビジネス英会話を練習するiPhoneアプリです。WindowsでExpo＋React Native＋TypeScriptを使って開発します。
 
-**質問・日本語補助・録音の土台を実装しました。** `mobile/` にホーム、導入、質問と回答例、読み上げ、録音・停止・破棄の実装があります。iPhone実機の音声確認は未実施で、AI応答・永続保存・まとめ・翌日復習は未実装です。`docs/english-coach-flow.html` は元の操作イメージとして残しています。
+**最初の1問をAIへ送る実装と、接続準備まで進めています。** `mobile/` に質問・日本語補助・読み上げ・録音・送信・返答表示・接続設定、`api/` に認証と利用枠付きのCloudflare Workerがあります。実API接続とiPhoneの音声確認は未実施です。次の質問、永続保存、まとめ画面、翌日復習は未実装です。`docs/english-coach-flow.html` は元の操作イメージとして残しています。
 
 ## 最初の到達点
 
@@ -28,6 +28,8 @@ flowchart LR
 | [決定事項・未決事項](docs/development-readiness.md) | 確定条件、提案、実装前の確認事項、モックとの差分 |
 | [自己紹介1レッスンの実装計画](docs/superpowers/plans/2026-09-26-self-introduction.md) | 実装順序、対象ファイル、データとAPIの境界、受け入れ条件 |
 | [実機・開発検証記録](docs/iphone-validation.md) | 実行済みの検証、未確認事項、次のiPhone確認手順 |
+| [API契約](docs/api-contract.md) | 音声形式、入出力、端末認証、モデル、利用枠と再送の扱い |
+| [API接続手順](docs/api-setup.md) | Cloudflare・OpenAIを本人の環境で設定し、iPhoneから接続する手順 |
 | [AGENTS.md](AGENTS.md) | このリポジトリで作業するエージェント向けのルール |
 
 記述が異なる場合は、最新のユーザー指示、確定条件、実装計画の暫定方針、元の設計提案、HTMLのサンプルの順で扱います。提案をユーザーが承認済みの条件として扱わず、変更の理由と状態を資料に残します。
@@ -54,7 +56,7 @@ WindowsとiPhoneを同じWi-Fiに接続し、ターミナルのQRコードをiPh
 
 ブラウザーでの画面確認は `npm.cmd run web`。これはiPhoneの録音・読み上げ・保存の確認を代替しません。検証状況は[実機検証記録](docs/iphone-validation.md)に記載します。
 
-現在は最初の質問で読み上げ・録音・破棄を確認する段階です。録音は最大90秒で停止し、AIへは送信しません。再起動後の一時ファイル回復は今後対応します。録音の確認には架空の呼び名を使ってください。
+設定前でも最初の質問で読み上げ・録音・破棄を確認できます。AIを使うには[接続手順](docs/api-setup.md)に従ってサーバーを設定し、iPhoneの「接続設定」に端末用コードを保存します。録音は最大90秒で止まり、本人が「回答を送信」を押したときに送ります。架空の呼び名で確認してください。再起動後の履歴・一時ファイル回復は今後対応します。
 
 ```powershell
 # mobile/ 内で実行
@@ -64,9 +66,19 @@ npm.cmd test -- --runInBand
 npx.cmd expo-doctor
 ```
 
+API側の検証は次のとおりです。テストは架空の応答を使い、`check:bundle` は公開しないdry-runです。
+
+```powershell
+# api/ 内で実行
+npm.cmd ci
+npm.cmd run typecheck
+npm.cmd test -- --run
+npm.cmd run check:bundle
+```
+
 ## Windows＋iPhoneでの開発方針
 
-- 最初はこのリポジトリ1か所で、1つの作業を順番に進めます。`mobile/` は作成済みで、`api/` は後で同じリポジトリ内に作る計画です。
+- 最初はこのリポジトリ1か所で、1つの作業を順番に進めます。`mobile/` と `api/` を同じリポジトリ内に置きます。
 - Node.js LTSとnpmを使い、初期化時にExpo SDK・React Native・TypeScriptの互換バージョンを決めてlockfileをコミットします。[Expoの作成手順](https://docs.expo.dev/get-started/create-a-project/)
 - 最初の実機確認はiPhoneのExpo Goを使用します。WindowsとiPhoneを同じWi-Fiに接続し、LAN接続を確認します。接続できない場合はWindows Firewall・ネットワーク分離を確認し、必要に応じてExpoのトンネルを使います。
 - Windows上のiOSシミュレーターを前提にしません。独立したアプリに進む段階でEASのクラウドビルドと署名・配布条件を確認します。[Expo FAQ](https://docs.expo.dev/faq/#can-i-develop-ios-apps-on-a-windows-computer)
@@ -78,10 +90,12 @@ AI事業者のAPIキーはバックエンドだけに置きます。アプリ内
 
 `.env`、`.dev.vars`、署名鍵、実際の録音・学習データはコミット対象外です。設定例を追加するときは、値を空にした `.env.example` / `.dev.vars.example` に説明を書きます。教材用の架空データと実データを区別します。
 
-端末保存でも、AI処理時は録音と必要なテキストをバックエンド・AI事業者へ送ります。保存範囲と通信について初回に説明する計画です。モデル名・料金・音声形式・端末認証方式は、実装前に再確認する項目です。
+AI処理時は録音と必要なテキストをCloudflare経由でOpenAIへ送ります。設定画面で通信と未実装の保存機能を説明しています。サーバーには認証・利用量のメタデータだけを保存し、Responsesは `store:false` を指定します。事業者側の保持全般がゼロという意味ではありません。
+
+本人用の端末コードはiPhoneのSecureStoreへ、OpenAIキーはWorkerのSecretへ置きます。初期設定はAI無効で、接続先URL・端末コード・サーバー設定をそろえるまでは使えません。暫定の新規処理停止枠は全端末合計で月$4です。料金・換算の前提と限界は[API契約](docs/api-contract.md)に記載します。
 
 ## Gitと検証
 
 この準備一式を `main` の初回コミットとします。その後の実装は同じ作業場所で `codex/<内容>` ブランチを使い、小さい単位でコミットします。土台が固まるまではworktreeを作りません。導入条件は[実装計画](docs/superpowers/plans/2026-09-26-self-introduction.md#作業場所とgit運用)に記載しています。
 
-型チェック・lint・26件のテスト・Expo Doctor 21項目が成功し、iOS向けJavaScriptバンドルを生成済みです。ネイティブビルドやiPhone実行の成功を意味しません。実機で未確認の項目は、ブラウザーや自動テストの成功で代替せず未確認として残します。
+mobileの型チェック・lint・36テスト、APIの型チェック・33テスト、Expo Doctor 21項目が成功し、iOS向けJavaScriptバンドルとWorkerのdry-runを確認済みです。実AI・ネイティブビルド・iPhone実行の成功を意味しません。未確認項目は[検証記録](docs/iphone-validation.md)に残します。

@@ -1,7 +1,7 @@
 import { ScrollView, Text, View } from 'react-native';
 import { ActionButton } from '../components/ActionButton';
 import { colors, ui } from '../theme';
-export function HomeScreen({ onStart }: { onStart: () => void }) {
+export function HomeScreen({ onStart, onSettings }: { onStart: () => void; onSettings: () => void }) {
   return <ScrollView contentContainerStyle={ui.scroll}>
     <View style={ui.row}><Text style={ui.heading}>English Coach</Text><Text style={ui.caption}>今日の練習</Text></View>
     <View style={{ paddingVertical: 16, gap: 12 }}><Text style={ui.title}>{'少しずつ、\n仕事で使える英語へ。'}</Text><Text style={ui.muted}>{'分からないときは、日本語の助けを。\n話す準備ができてからで大丈夫。'}</Text></View>
@@ -16,6 +16,7 @@ export function HomeScreen({ onStart }: { onStart: () => void }) {
         ['3', '自分で答えて、振り返る', '今日の表現を、明日の復習へ。'],
       ].map(([step, title, detail]) => <View key={step} style={[ui.row, { justifyContent: 'flex-start' }]}><Text style={{ color: colors.blue, backgroundColor: colors.soft, padding: 10, borderRadius: 10 }}>{step}</Text><View style={{ flex: 1 }}><Text style={ui.body}>{title}</Text><Text style={ui.muted}>{detail}</Text></View></View>)}
     </View>
-    <Text style={ui.caption}>開発中のプレビューです。AIの応答・学習記録の保存はこれから対応します。</Text>
+    <ActionButton label="接続設定" variant="quiet" onPress={onSettings} />
+    <Text style={ui.caption}>開発中の確認版です。現在は最初の1問を確認できます。AIの返答には接続設定が必要です。学習記録・まとめ・復習はこれから対応します。</Text>
   </ScrollView>;
 }

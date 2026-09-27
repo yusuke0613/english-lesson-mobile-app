@@ -1,0 +1,12 @@
+{
+  "request": {
+    "lessonId": "self-introduction", "questionId": "intro-name", "transcript": "You can call me Alex.",
+    "support": { "englishViewed": true, "meaningViewed": false, "templateViewed": false, "examplePlayed": false, "playCount": 1, "slowPlayed": false },
+    "context": []
+  },
+  "response": {
+    "requestId": "b8c611d6-f85b-4774-a8cf-cf2910248fb5",
+    "evaluation": { "outcome": "answered", "reasonJa": "呼び名を伝えられました。", "replyEn": "Nice to meet you, Alex.", "correction": null },
+    "usage": { "estimatedMicroUsd": 65 }
+  }
+}

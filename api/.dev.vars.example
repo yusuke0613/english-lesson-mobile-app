@@ -1,0 +1,4 @@
+# Copy to .dev.vars locally. Never put this key in mobile/ or EXPO_PUBLIC_*.
+OPENAI_API_KEY=
+# Enable only after reviewing docs/api-setup.md and registering a device token.
+AI_ENABLED=false

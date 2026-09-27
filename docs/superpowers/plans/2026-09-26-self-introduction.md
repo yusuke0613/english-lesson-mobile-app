@@ -12,7 +12,7 @@
 
 作成日：2026-09-26。準備・初回Git保存の後、「すすめて」を受け実装を開始。チェックボックスは実施した範囲だけ更新する。実機確認はコードの実装と別に扱い、[検証記録](../../iphone-validation.md)に残す。
 
-現在はTask 1・2のコードを実装し、26テスト・型チェック・lint・Expo Doctor・iOS向けexportを確認済み。Task 1・2のiPhone完了条件は未達。Task 3〜7は未着手。アプリは最初の質問の録音/破棄までで、AIへの送信、次の質問、端末保存、まとめ、復習はまだつながっていない。
+現在はTask 1〜3のコードを実装し、mobile 36テスト・API 33テスト・型チェック・lint・Expo Doctor・iOS向けexport・Worker dry-runを確認済み。Task 1〜3の実機/実AI完了条件は未達。最初の質問の送信・返答表示までの実装があり、接続設定を残している。Tasks 4〜7、次の質問、端末保存、まとめ画面、復習は未着手。[API契約](../../api-contract.md)と[接続手順](../../api-setup.md)を追加した。
 
 ## Global Constraints
 
@@ -82,7 +82,7 @@ flowchart LR
 | `mobile/src/review/{clock,scheduler}.ts` | 学習日の計算、翌日候補、達成の判定 |
 | `api/src/{index,auth,budget,requests,provider,schemas}.ts` | ルーティング、端末認証、利用枠、処理ID管理、AI呼び出し、入出力検証 |
 | `api/migrations/0001_device_usage.sql` | トークンのハッシュ、月利用枠、処理状態。会話本文を含めない |
-| `docs/{api-contract,iphone-validation}.md` | API仕様とiPhone検証記録。検証記録を作成済み、API仕様はTask 3で作る |
+| `docs/{api-contract,api-setup,iphone-validation}.md` | API仕様・接続手順・iPhone検証記録。Task 3で作成/更新済み |
 
 ### データ契約の暫定案
 
@@ -143,7 +143,7 @@ flowchart LR
 - [x] 最小実装後に関連テストを通す。1秒未満や空ファイルをエラーにし、破棄して録り直せるようにする。読み上げの遅延開始、ネイティブ自動停止/中断、削除失敗の回帰テストも追加する。
 - [ ] 無音の検出/文字起こし空欄の扱いは実機とAPIで調整し、学習失敗にしない。失敗録音の再送/アプリ再起動後の回復はTask 3・4と結合して確認する。
 - [ ] iPhoneで通常録音、権限拒否/再許可、サイレントモード、録音中のロック/中断、再起動後の一時ファイルを確認する。バックグラウンド移行時は録音を停止し、復帰後に再録音/破棄を案内する。
-- [ ] AAC/M4A候補の実際のMIME・長さ・サイズを記録し、AI APIの受理をTask 3で確認する。音声そのものはGitに入れない。`feat: add recording and speech adapters` でコミットする。
+- [ ] Task 3でPCM WAVへ変更した形式の実際のMIME・長さ・サイズを記録し、AI APIの受理を確認する。音声そのものはGitに入れない。Task 2のコードは `2acf11f` にコミット済み。
 
 **完了条件:** iPhoneで録音して取り消せる。質問・例文の読み上げと録音が重ならない。自動テストを実機確認の代用にしない。
 
@@ -151,18 +151,20 @@ flowchart LR
 
 **Files:** 上表の `api/src/*.ts`, `api/migrations/0001_device_usage.sql`, `api/package.json`, lockfile, `tsconfig.json`, `wrangler.jsonc`, `vitest.config.ts`, `.dev.vars.example`, `api/test/{auth-budget,requests,contracts}.test.ts`、`docs/api-contract.md`、`mobile/src/api/*.ts`, `mobile/.env.example`。
 
-**Interfaces:** `CoachClient.transcribe(recording: Recording, requestId: string): Promise<TranscriptResult>`、`reply(input: ReplyInput): Promise<ReplyResult>`、`summarize(input: SummaryInput): Promise<SummaryResult>`。全応答は処理IDを含み、失敗は `code`, `stage`, `retryable`, `requestId` で区別する。`reserveUsage(deviceId, requestId, maxCost)` と `settleUsage(requestId, actualCost)` は原子的に扱う。
+**Interfaces:** `CoachClient.transcribe(recording: Recording, requestId: string): Promise<TranscriptResult>`、`reply(input: ReplyInput, requestId: string): Promise<ReplyResult>`、`summarize(input: SummaryInput, requestId: string): Promise<SummaryResult>`。全応答は処理IDを含み、失敗は `code`, `stage`, `retryable`, `requestId` で区別する。`reserveUsage` と `settleUsage` は原子的に扱う。実装の詳細はAPI契約を参照する。
 
-- [ ] U3/U4/U6/U8を具体化する。モデルID、実入力形式、単価、換算レート、最大出力、月境界、停止枠、利用量確定失敗時の扱いを記録する。接続前にAI事業者の公式資料を再確認し、契約や追加費用が必要なら内容を提示する。
+- [x] U3/U4/U6/U8の実装方針を具体化。モデルID、入力形式、公式単価、管理用換算、最大出力、月境界、停止枠、確定失敗時の扱いをAPI契約に記録。アカウントの実利用権・料金は接続時に確認する。
 - [ ] 契約と架空の入出力例を定義する。名前/仕事の正答、言い直し不要、空欄、質問と無関係な発話、不正JSONを含める。文字起こし/各発言は最大500文字、replyの過去文脈は最大8ターン、summaryは最大16試行として上限を固定し、超過は明示エラーにする。固定lessonId/questionIdをサーバーで検証する。
-- [ ] モックのAI事業者を使うテストを先に書く。トークンなしは401、期限切れ/失効は403、音声超過は413、同じ処理IDは外部API呼び出し1回、枠不足/DB障害は呼び出し0回、同時予約で枠を超えないことをassertする。
-- [ ] `npm.cmd test -- --run`（作業場所 `api`、scriptはVitest）、`npm.cmd run typecheck` の失敗を確認し、認証・D1・利用枠・入力検証・AIアダプターを実装して成功させる。発話を命令として扱わせず教材データとして渡し、出力もスキーマ検証する。
+- [x] モックのAI事業者を使うテストを先に書く。トークンなしは401、期限切れ/失効は403、音声超過は413、同じ処理IDは外部API呼び出し1回、枠不足/DB障害は呼び出し0回、同時予約で枠を超えないことをassertする。
+- [x] APIテストの未実装による失敗を確認し、認証・D1・利用枠・入力検証・AIアダプターを実装して成功させた。発話は教材データとして渡し、出力もスキーマ検証。typecheck成功。
 - [ ] タイムアウト・事業者応答後の切断・usage確定失敗をテストする。永続化するのはメタデータのみとし、同じIDを自動再課金しない。定額予算を保証する表示は使わない。
 - [ ] 本人用の失効可能トークンを管理側で発行し、アプリの初回設定からSecureStoreへ保存する。`EXPO_PUBLIC_API_BASE_URL` は公開URLのみ。秘密はWorker secrets / ローカル `.dev.vars` に置く。
 - [ ] iPhoneから到達できるHTTPS開発APIへ接続し、録音 → 文字起こし → 実発話に応じた返答 → 読み上げを確認する。iPhoneの `localhost` はWindowsを指さない。Expoトンネルはバックエンドの公開を代行しない。
 - [ ] APIのtypecheck/testとmobileのtypecheck/関連テストを通し、キー混入・本文ログを確認する。結果を記録し `feat: connect authenticated coaching API` でコミットする。
 
 **完了条件:** 実AIで1往復でき、未認証・予算停止・連打・異常応答を制御できる。固定応答だけならこのTaskは未完了。
+
+2026-09-27のコード到達点：3つのAPI、共有reply fixture、端末コード発行スクリプト、SecureStore設定画面、名前1問の送信・返答表示を実装。通信失敗/不正出力/確定失敗・連打のローカルテストは成功。文字起こしの保持はメモリー内と保存用コールバックまで。コードを先に保存し、実トークン発行・外部公開・本人のiPhoneでの接続、質問と無関係な実発話などの品質確認は残件として扱う。
 
 ### Task 4: 会話と補助をSQLiteに保存して再開
 

@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { AppState } from 'react-native';
-import { RecordingPresets, requestRecordingPermissionsAsync, setAudioModeAsync, useAudioRecorder } from 'expo-audio';
+import { IOSOutputFormat, RecordingPresets, requestRecordingPermissionsAsync, setAudioModeAsync, useAudioRecorder } from 'expo-audio';
 import { File } from 'expo-file-system';
 import { RecordingController } from './recorder';
 import { speakEnglish, stopSpeech } from './speech';
@@ -16,7 +16,10 @@ export function useLessonAudio(): LessonAudio {
   const controllerRef = useRef<RecordingController | null>(null);
   const [durationMs, setDurationMs] = useState(0);
   const [interrupted, setInterrupted] = useState(false);
-  const recorder = useAudioRecorder({ ...RecordingPresets.HIGH_QUALITY, numberOfChannels: 1, bitRate: 64000 }, (event) => {
+  const recorder = useAudioRecorder({
+    ...RecordingPresets.HIGH_QUALITY, extension: '.wav', sampleRate: 16000, numberOfChannels: 1, bitRate: 256000,
+    ios: { ...RecordingPresets.HIGH_QUALITY.ios, extension: '.wav', sampleRate: 16000, outputFormat: IOSOutputFormat.LINEARPCM, linearPCMBitDepth: 16, linearPCMIsBigEndian: false, linearPCMIsFloat: false },
+  }, (event) => {
     if (event.hasError || event.mediaServicesDidReset) setInterrupted(true);
     if (event.isFinished || event.hasError) void controllerRef.current?.stopRecording();
   });
@@ -39,7 +42,7 @@ export function useLessonAudio(): LessonAudio {
         const uri = recorder.uri;
         if (!uri) throw new Error('Recording file unavailable');
         const file = new File(uri);
-        return { uri, durationMs, sizeBytes: file.exists ? file.size : 0, mimeType: 'audio/mp4' };
+        return { uri, durationMs, sizeBytes: file.exists ? file.size : 0, mimeType: 'audio/wav' };
       },
       discard: async (recording) => { const file = new File(recording.uri); if (file.exists) file.delete(); },
     }, { stop: stopSpeech });
@@ -74,11 +77,12 @@ export function useLessonAudio(): LessonAudio {
     return () => { controllerRef.current = null; subscription.remove(); void stopSpeech(); void controller.discardRecording(); };
   }, [controller]);
 
+  const discardRecording = useCallback(async () => { setInterrupted(false); return controller.discardRecording(); }, [controller]);
   return {
     snapshot, durationMs: snapshot.recording?.durationMs ?? durationMs, interrupted, canRecord: true,
     startRecording: async () => { setInterrupted(false); await controller.startRecording(); },
     stopRecording: () => controller.stopRecording(),
-    discardRecording: async () => { setInterrupted(false); return controller.discardRecording(); },
+    discardRecording,
     speakEnglish: async (text, slow) => {
       if (['preparing', 'recording', 'stopping'].includes(controller.getSnapshot().status)) return;
       await speakEnglish(text, slow);

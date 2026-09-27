@@ -3,7 +3,7 @@ import { useAudioRecorder } from 'expo-audio';
 import { useLessonAudio } from './useLessonAudio.native';
 
 jest.mock('expo-audio', () => ({
-  RecordingPresets: { HIGH_QUALITY: {} },
+  RecordingPresets: { HIGH_QUALITY: { ios: {} } }, IOSOutputFormat: { LINEARPCM: 'lpcm' },
   requestRecordingPermissionsAsync: jest.fn(async () => ({ granted: true })),
   setAudioModeAsync: jest.fn(async () => undefined),
   useAudioRecorder: jest.fn(),
@@ -30,6 +30,20 @@ function mockNativeRecorder() {
 
 beforeEach(() => jest.useFakeTimers());
 afterEach(() => jest.useRealTimers());
+
+test('iPhone produces bounded mono 16-bit PCM WAV for server validation', async () => {
+  const native = mockNativeRecorder();
+  const hook = await renderHook(useLessonAudio);
+  expect(jest.mocked(useAudioRecorder).mock.calls.at(-1)?.[0]).toMatchObject({
+    extension: '.wav', sampleRate: 16000, numberOfChannels: 1,
+    ios: { extension: '.wav', sampleRate: 16000, outputFormat: 'lpcm', linearPCMBitDepth: 16, linearPCMIsBigEndian: false, linearPCMIsFloat: false },
+  });
+  await act(async () => { await hook.result.current.startRecording(); });
+  native.setStatus({ isRecording: true, durationMillis: 3000 });
+  await act(async () => { await hook.result.current.stopRecording(); });
+  expect(hook.result.current.snapshot.recording?.mimeType).toBe('audio/wav');
+  await hook.unmount();
+});
 
 test('native automatic completion retains duration measured before SDK reset', async () => {
   const native = mockNativeRecorder();

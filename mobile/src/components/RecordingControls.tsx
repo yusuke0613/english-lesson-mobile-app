@@ -13,7 +13,7 @@ const errors: Record<RecordingError, string> = {
   device: '録音を完了できませんでした。マイクや他の音声アプリを確認し、録り直してください。',
   cleanup: '録音を破棄できませんでした。もう一度「録音を破棄」を押してください。',
 };
-export function RecordingControls({ audio }: { audio: LessonAudio }) {
+export function RecordingControls({ audio, onSend }: { audio: LessonAudio; onSend?: () => void }) {
   const { snapshot } = audio;
   const busy = snapshot.status === 'preparing' || snapshot.status === 'stopping';
   return <View style={ui.stack}>
@@ -27,8 +27,9 @@ export function RecordingControls({ audio }: { audio: LessonAudio }) {
       <ActionButton label="取り消す" variant="quiet" onPress={() => { void audio.discardRecording(); }} />
     </> : snapshot.recording ? <>
       {snapshot.status === 'ready' && <Text style={ui.body}>録音できました（{Math.round(snapshot.recording.durationMs / 1000)}秒）。</Text>}
+      {snapshot.status === 'ready' && onSend && <><ActionButton label="回答を送信" onPress={onSend} /><Text style={ui.caption}>録音をCloudflare経由でOpenAIへ送り、返答を受け取ります。</Text></>}
       <ActionButton label="録音を破棄" variant="secondary" onPress={() => { void audio.discardRecording(); }} />
-      <Text style={ui.caption}>AIへの送信はまだ接続していません。この録音は学習履歴に保存されません。</Text>
+      <Text style={ui.caption}>送信には接続設定が必要です。録音は学習履歴に保存されません。</Text>
     </> : <>
       <ActionButton label={busy ? '準備しています…' : '録音する'} disabled={busy || !audio.canRecord} onPress={() => { void audio.startRecording(); }} />
       <Text style={ui.caption}>{audio.canRecord ? '話す準備ができてからで大丈夫。最大90秒で自動停止します。' : '録音はiPhoneのExpo Goで確認できます。ブラウザーでは画面と読み上げを確認できます。'}</Text>
