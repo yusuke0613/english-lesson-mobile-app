@@ -166,6 +166,8 @@ flowchart LR
 
 2026-09-27のコード到達点：3つのAPI、共有reply fixture、端末コード発行スクリプト、SecureStore設定画面、名前1問の送信・返答表示を実装。通信失敗/不正出力/確定失敗・連打のローカルテストは成功。文字起こしの保持はメモリー内と保存用コールバックまで。コードを先に保存し、実トークン発行・外部公開・本人のiPhoneでの接続、質問と無関係な実発話などの品質確認は残件として扱う。
 
+2026-10-04の設定進捗：D1の実IDを `DB` bindingへ設定し、リモート初期マイグレーションとowner-iphone登録が完了。本人が既に発行したコードを保持し、ハッシュ一致・有効期限・未失効を確認した。APIの33テスト・型チェック・dry-runを再確認。OpenAIキー設定・公開・実機のSecureStore保存と実AI接続は未確認のため、Task 3全体の完了条件は引き続き未達。
+
 ### Task 4: 会話と補助をSQLiteに保存して再開
 
 **Files:** `mobile/src/storage/{database,migrations,lessonRepository}.ts`, `lessonRepository.test.ts`、reducer、Lesson/Home画面、package/lockfile。

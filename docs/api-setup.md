@@ -1,6 +1,6 @@
 # API接続の準備
 
-2026-09-27。本人からOpenAI/Cloudflare両方のアカウントありと確認。以下は未実施の設定手順であり、接続済みの記録ではない。現在のWorkerはAI無効が初期値。D1のIDはプレースホルダーで、まだ外部デプロイしていない。
+作成：2026-09-27。更新：2026-10-04。本人からOpenAI/Cloudflare両方のアカウントありと確認。現在はD1の接続設定・初期マイグレーション・owner-iphoneの登録まで完了。WorkerのAI設定はfalse。OpenAIキー設定・Worker公開・iPhoneの実AI接続は未確認。以下は新規設定時の手順を含むため、完了したDB作成や端末発行を繰り返さない。
 
 ## キーをチャットに貼らず設定する
 
@@ -30,19 +30,37 @@ npx.cmd wrangler login
 
 ## 3. D1・端末トークンを準備
 
+DBをまだ作成していない場合だけ実行する。
+
 ```powershell
 npx.cmd wrangler d1 create english-coach-usage
 ```
 
-表示されたdatabase_idを `api/wrangler.jsonc` のゼロのUUIDに設定する。IDは秘密鍵ではない。既存の同名DBを使う場合は内容・用途を確認する。
+表示されたdatabase_idを `api/wrangler.jsonc` の **bindingが `DB` の項目**へ設定する。IDは秘密鍵ではない。作成時にWranglerが設定を自動追加すると、`english_coach_usage` など別名の項目と、ゼロのUUIDが残った `DB` が並ぶことがある。このアプリでは `DB` のdatabase_idを実際のIDに置き換え、同じDBを指す追加項目を除いて1つにまとめる。`migrations_dir: "migrations"` は残す。自動追加を選ばず既存の `DB` を手動で更新してもよい。[Cloudflareのbinding設定](https://developers.cloudflare.com/d1/get-started/#3-bind-your-worker-to-your-d1-database)
+
+`DB` がゼロのUUIDを指す状態では先に進まない。2026-10-04にこのリポジトリの設定は実際のDBへ修正済み。既存の同名DBを使う場合は内容・用途を確認する。
 
 ```powershell
 npx.cmd wrangler d1 migrations apply DB --remote
+```
+
+成功を確認してから端末発行へ進む。次の発行コマンドは **その端末IDで初めて発行するときだけ** 実行する。
+
+```powershell
 node .\scripts\create-device.mjs owner-iphone
+```
+
+`EEXIST` は既存コードの上書きを防いだ状態。`local-data/` に同じ端末IDのtoken.txt・register.sql・revoke.sqlがそろっていれば再発行せずに使用する。既存ファイルを削除してやり直さない。ファイルが一部しかない場合や期限切れなら、状態を確認して新しいIDでの発行・旧端末の失効を行う。
+
+まだ登録されていない端末だけ登録する。2026-10-04にowner-iphoneは登録済みで、このコマンドの再実行も不要。
+
+```powershell
 npx.cmd wrangler d1 execute DB --remote --file .\local-data\owner-iphone-register.sql
 ```
 
 生成ファイルはGit対象外の `api/local-data/` に置かれる。コードはコンソールへ表示しない。`owner-iphone-token.txt` の内容は後で本人のiPhoneに入力する。30日で期限切れ。ファイルを紛失した場合は新しいIDで発行し、旧端末を失効させる。
+
+今回の確認結果：D1の未適用マイグレーション0件、owner-iphoneの登録1件、既存ローカルコードと登録ハッシュの一致、有効期限内・未失効を確認。コード本文は出力していない。
 
 ## 4. OpenAIキーと公開URL
 

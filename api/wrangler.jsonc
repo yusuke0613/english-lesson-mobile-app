@@ -1,19 +1,26 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "english-coach-api",
-  "main": "src/index.ts",
-  "compatibility_date": "2026-09-27",
-  "compatibility_flags": ["nodejs_compat"],
-  "observability": { "enabled": false },
-  "vars": {
-    "AI_ENABLED": "false",
-    "TRANSCRIPTION_MODEL": "gpt-transcribe",
-    "TEXT_MODEL": "gpt-6-luna",
-    "MONTHLY_LIMIT_MICRO_USD": "4000000"
-  },
-  "d1_databases": [{
-    "binding": "DB", "database_name": "english-coach-usage",
-    "database_id": "00000000-0000-0000-0000-000000000000",
-    "migrations_dir": "migrations"
-  }]
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "english-coach-api",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-09-27",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"observability": {
+		"enabled": false
+	},
+	"vars": {
+		"AI_ENABLED": "false",
+		"TRANSCRIPTION_MODEL": "gpt-transcribe",
+		"TEXT_MODEL": "gpt-6-luna",
+		"MONTHLY_LIMIT_MICRO_USD": "4000000"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "english-coach-usage",
+			"database_id": "4e273505-ebd3-4578-9304-84b247cf3fe6",
+			"migrations_dir": "migrations"
+		}
+	]
 }
