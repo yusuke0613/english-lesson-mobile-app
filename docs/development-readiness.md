@@ -97,3 +97,11 @@ Expo公式資料を2026-09-26に確認した範囲では、Windowsでの作成�
 - U4：本人が作成した `english-coach-usage` の存在をCloudflare上で確認。Wranglerが追加した別名bindingへ実IDが入り、アプリ用 `DB` には仮IDが残っていたため、実IDを `DB` へ集約した。
 - リモートの初期マイグレーションとowner-iphoneの登録が完了。既存コードを再発行せず、登録ハッシュとの一致・有効期限・未失効を確認した。未適用マイグレーションは0件。
 - OpenAIキー設定・Worker公開・実AI一往復は未確認。AI_ENABLEDはfalseのまま。以前の未設定記録からの更新範囲はDBと端末登録まで。
+
+### 2026-10-04：公開とAI接続
+
+- 本人がWorkerを公開し、続けて「キー設定済み。AIを有効にする」と明示承認。Secret名の登録を確認し、AI_ENABLEDをtrueにして反映した。workers.devを明示的に有効、Preview URLsは無効にした。
+- 実環境でOpenAIへ到達する前に失敗した原因は `redirect: error`。workerdのRequestが受け付けないため `manual` に変更し、3xxを拒否する。ネイティブRequestを通す回帰テストで失敗→成功を確認した。
+- 事業者のHTTPエラー・通信失敗・不正応答を固定コードに分類。生のエラー文・秘密情報は出さず、失敗の予約保持と自動再送禁止を維持した。API 44テスト、mobile 36テスト、両方の型チェックとmobile lintが成功。
+- 架空の自己紹介文を公開APIへ送信し、実AIの返答を約4.1秒で受信。推定利用量58 micro USD。未認証401・同一処理IDの再要求409を確認。音声の文字起こし、iPhoneの実操作は未確認。
+- mobile/.envに公開URLだけ設定し、Expoを再起動。LAN上で正しいiOS manifestが200を返すことを確認し、実機用QRを提示した。現在は最初の1問まで。

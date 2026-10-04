@@ -1,6 +1,8 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "english-coach-api",
+	"workers_dev": true,
+	"preview_urls": false,
 	"main": "src/index.ts",
 	"compatibility_date": "2026-09-27",
 	"compatibility_flags": [
@@ -10,7 +12,7 @@
 		"enabled": false
 	},
 	"vars": {
-		"AI_ENABLED": "false",
+		"AI_ENABLED": "true",
 		"TRANSCRIPTION_MODEL": "gpt-transcribe",
 		"TEXT_MODEL": "gpt-6-luna",
 		"MONTHLY_LIMIT_MICRO_USD": "4000000"

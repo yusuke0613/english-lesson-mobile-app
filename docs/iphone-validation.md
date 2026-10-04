@@ -60,7 +60,11 @@
 
 ## 本人のiPhoneでの手順
 
-2026-10-04のサーバー準備：実際のD1へ `DB` bindingを修正し、初期マイグレーション・owner-iphone登録を実施。未適用migrationが0件で、既存ローカルコードが登録ハッシュと一致し有効であることを確認した。APIの型チェック・33テスト・Worker dry-runも成功。AIキー設定・Worker公開・iPhone接続の確認はまだない。
+同日の公開・接続確認：本人の承認後にAIを有効化。公開URLは `https://english-coach-api.english-coach-lab-2026.workers.dev`。実環境の通信設定を修正し、API 44テスト・mobile 36テスト・型チェック・lintが成功。架空の文字「You can call me Alex.」から実AIの返答を4,075msで受信（推定58 micro USD）。未認証401・処理済みIDの409も確認。テキスト1件の結果であり、音声一往復・p95・iPhone操作の確認ではない。
+
+Expoは公開URLを読み込み、LAN `192.168.68.52:8081` で起動。iOS manifestがHTTP 200、SDK 57、English Coachの接続先を返すことを確認した。PCのIPは変わるため、次回は起動時のQRを使う。
+
+2026-10-04のサーバー準備時点（公開前）：実際のD1へ `DB` bindingを修正し、初期マイグレーション・owner-iphone登録を実施。未適用migrationが0件で、既存ローカルコードが登録ハッシュと一致し有効であることを確認した。この時点ではAPIの型チェック・33テスト・Worker dry-runが成功し、公開・実AIは未確認だった。公開後の結果は上記に記録。
 
 1. WindowsとiPhoneを同じWi-Fiにつなぎ、SDK 57対応のExpo Goを用意する。
 2. `mobile/` で `npm.cmd start`。QRコードをiPhoneのカメラで読み、Expo Goで開く。

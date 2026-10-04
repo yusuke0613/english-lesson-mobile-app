@@ -2,7 +2,7 @@
 
 日本語の補助を使いながら、1日15分を目安にビジネス英会話を練習するiPhoneアプリです。WindowsでExpo＋React Native＋TypeScriptを使って開発します。
 
-**最初の1問をAIへ送る実装と、接続準備まで進めています。** `mobile/` に質問・日本語補助・読み上げ・録音・送信・返答表示・接続設定、`api/` に認証と利用枠付きのCloudflare Workerがあります。実API接続とiPhoneの音声確認は未実施です。次の質問、永続保存、まとめ画面、翌日復習は未実装です。`docs/english-coach-flow.html` は元の操作イメージとして残しています。
+**最初の1問をAIへ送る実装があり、公開APIから実AIの返答を確認しました。** `mobile/` に質問・日本語補助・読み上げ・録音・送信・返答表示・接続設定、`api/` に認証と利用枠付きのCloudflare Workerがあります。iPhoneの実録音からの一往復は未確認です。次の質問、永続保存、まとめ画面、翌日復習は未実装です。`docs/english-coach-flow.html` は元の操作イメージとして残しています。
 
 ## 最初の到達点
 
@@ -92,10 +92,10 @@ AI事業者のAPIキーはバックエンドだけに置きます。アプリ内
 
 AI処理時は録音と必要なテキストをCloudflare経由でOpenAIへ送ります。設定画面で通信と未実装の保存機能を説明しています。サーバーには認証・利用量のメタデータだけを保存し、Responsesは `store:false` を指定します。事業者側の保持全般がゼロという意味ではありません。
 
-本人用の端末コードはiPhoneのSecureStoreへ、OpenAIキーはWorkerのSecretへ置きます。初期設定はAI無効で、接続先URL・端末コード・サーバー設定をそろえるまでは使えません。暫定の新規処理停止枠は全端末合計で月$4です。料金・換算の前提と限界は[API契約](docs/api-contract.md)に記載します。
+本人用の端末コードはiPhoneのSecureStoreへ、OpenAIキーはWorkerのSecretへ置きます。2026-10-04に本人の明示承認を受け、公開APIのAIを有効化しました。接続先URLを設定してExpoを起動し、iPhoneに端末コードを保存して使います。暫定の新規処理停止枠は全端末合計で月$4です。料金・換算の前提と限界は[API契約](docs/api-contract.md)に記載します。
 
 ## Gitと検証
 
 この準備一式を `main` の初回コミットとします。その後の実装は同じ作業場所で `codex/<内容>` ブランチを使い、小さい単位でコミットします。土台が固まるまではworktreeを作りません。導入条件は[実装計画](docs/superpowers/plans/2026-09-26-self-introduction.md#作業場所とgit運用)に記載しています。
 
-mobileの型チェック・lint・36テスト、APIの型チェック・33テスト、Expo Doctor 21項目が成功し、iOS向けJavaScriptバンドルとWorkerのdry-runを確認済みです。実AI・ネイティブビルド・iPhone実行の成功を意味しません。未確認項目は[検証記録](docs/iphone-validation.md)に残します。
+2026-10-04にmobileの型チェック・lint・36テスト、APIの型チェック・44テストが成功。公開APIに架空の自己紹介文を送り、実AIの返答を約4秒で受信しました。未認証の401と処理済みIDの409も確認済み。以前のExpo Doctor 21項目・iOS向けexportとは区別して記録します。iPhoneの実録音、文字起こし、ネイティブビルドは未確認です。[検証記録](docs/iphone-validation.md)

@@ -13,7 +13,11 @@ beforeEach(async () => {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token));
   const hash = Array.from(new Uint8Array(digest)).map((n) => n.toString(16).padStart(2, '0')).join('');
   await db().prepare('INSERT INTO devices VALUES (?, ?, ?, 0)').bind('owner-phone', hash, Math.floor(Date.now() / 1000) + 86400).run();
-  outbound = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json(responseBody()));
+  outbound = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+    // Validate options with workerd's real Request constructor before faking the response.
+    new Request(input, init);
+    return Response.json(responseBody());
+  });
 });
 afterEach(() => { vi.restoreAllMocks(); vi.useRealTimers(); });
 
@@ -120,6 +124,41 @@ test('settlement failure keeps an uncertain reservation without exposing the res
   expect((await worker.fetch(request(replyInput, id), bindings())).status).toBe(409);
   expect(outbound).toHaveBeenCalledTimes(1);
   await db().exec('DROP TRIGGER fail_settle');
+});
+
+test.each([
+  { status: 307, upstreamCode: 'redirect', code: 'PROVIDER_SERVICE_ERROR' },
+  { status: 401, upstreamCode: 'invalid_api_key', code: 'PROVIDER_AUTH_FAILED' },
+  { status: 403, upstreamCode: 'permission_denied', code: 'PROVIDER_ACCESS_DENIED' },
+  { status: 400, upstreamCode: 'invalid_request_error', code: 'PROVIDER_REQUEST_REJECTED' },
+  { status: 404, upstreamCode: 'model_not_found', code: 'PROVIDER_REQUEST_REJECTED' },
+  { status: 429, upstreamCode: 'credit_balance_exhausted', code: 'PROVIDER_BILLING_LIMIT' },
+  { status: 429, upstreamCode: 'insufficient_quota', code: 'PROVIDER_BILLING_LIMIT' },
+  { status: 429, upstreamCode: 'project_spend_limit_exceeded', code: 'PROVIDER_BILLING_LIMIT' },
+  { status: 429, upstreamCode: 'slow_down', code: 'PROVIDER_RATE_LIMIT' },
+  { status: 500, upstreamCode: 'private_unknown_code', code: 'PROVIDER_SERVICE_ERROR' },
+])('classifies upstream $status / $upstreamCode without disclosing details or retrying', async ({ status, upstreamCode, code }) => {
+  outbound.mockResolvedValue(Response.json({ error: { code: upstreamCode, message: 'private provider message with credentials' } }, { status }));
+  const id = crypto.randomUUID();
+  const response = await worker.fetch(request(replyInput, id), bindings());
+  expect(response.status).toBe(502);
+  expect(await response.json()).toEqual({ requestId: id, stage: 'reply', code, retryable: false });
+  expect((await worker.fetch(request(replyInput, id), bindings())).status).toBe(409);
+  expect(outbound).toHaveBeenCalledTimes(1);
+  expect(await db().prepare('SELECT status, charged_micro_usd FROM requests WHERE id = ?').bind(id).first()).toEqual({ status: 'unknown', charged_micro_usd: null });
+});
+
+test('provider transport and malformed successful response have distinct safe errors', async () => {
+  outbound.mockRejectedValueOnce(new Error('private network details'));
+  const network = await worker.fetch(request(), bindings());
+  expect(await network.json()).toMatchObject({ code: 'PROVIDER_CONNECTION_FAILED', retryable: false });
+  outbound.mockResolvedValueOnce(new Response('not json', { status: 200 }));
+  const malformed = await worker.fetch(request(), bindings());
+  expect(await malformed.json()).toMatchObject({ code: 'PROVIDER_INVALID_RESPONSE', retryable: false });
+  outbound.mockResolvedValueOnce(Response.json({ unexpected: 'private output' }));
+  const invalid = await worker.fetch(request(), bindings());
+  expect(await invalid.json()).toMatchObject({ code: 'PROVIDER_INVALID_RESPONSE', retryable: false });
+  expect(outbound).toHaveBeenCalledTimes(3);
 });
 
 test('PCM duration is verified from bytes, and the transcript is returned', async () => {

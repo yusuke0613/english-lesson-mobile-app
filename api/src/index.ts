@@ -70,6 +70,7 @@ export default {
       let fault: ApiError;
       if (providerSucceeded) fault = new ApiError('RESULT_UNAVAILABLE', 503);
       else if (error instanceof ApiError) fault = error;
+      else if (reserved && (error instanceof z.ZodError || error instanceof SyntaxError)) fault = new ApiError('PROVIDER_INVALID_RESPONSE', 502);
       else if (reserved) fault = new ApiError('PROVIDER_RESULT_UNKNOWN', 502);
       else if (error instanceof z.ZodError || error instanceof SyntaxError || error instanceof TypeError && /form|multipart/i.test(error.message)) fault = new ApiError('INVALID_INPUT', 400);
       else fault = new ApiError('SERVICE_UNAVAILABLE', 503);

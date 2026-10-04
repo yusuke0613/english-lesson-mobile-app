@@ -8,6 +8,7 @@
 - 認証なし/不明トークンは401、期限切れ/失効済みは403。認証後に入力を検証し、その後に利用枠を予約する。DB障害や設定不備は503で、新しいAI処理を開始しない。
 - 成功には必ず `requestId` と `usage.estimatedMicroUsd` を含む。使用額はサーバーの保守的な推定値で、請求額そのものではない。
 - 失敗は `{ requestId: string|null, stage: "transcription"|"reply"|"summary"|null, code: string, retryable: false }`。この初版は自動再送しない。HTTPレスポンスは `Cache-Control: no-store`。
+- 事業者エラーは固定codeへ変換する。`PROVIDER_AUTH_FAILED` / `PROVIDER_ACCESS_DENIED` / `PROVIDER_REQUEST_REJECTED` / `PROVIDER_BILLING_LIMIT` / `PROVIDER_RATE_LIMIT` / `PROVIDER_CONNECTION_FAILED` / `PROVIDER_SERVICE_ERROR` / `PROVIDER_INVALID_RESPONSE`。キー・入力・生のエラー文は返さない。429は許可リストの課金コードだけを判定に使う。[OpenAIのエラー分類](https://developers.openai.com/api/docs/guides/error-codes)
 - ネイティブiPhone用。ブラウザー向けCORSは有効にしない。会話本文・録音・生成結果・認証ヘッダーをD1やアプリログへ記録しない。
 
 ## エンドポイント
@@ -46,5 +47,7 @@ JSON全体は64,000 bytesまで。固定lessonIdは `self-introduction`。questi
 処理IDは全期間で一意。進行中の重複は `REQUEST_IN_PROGRESS`、終了/不明結果の再要求は `RESULT_UNAVAILABLE`（409）。本文をサーバーに残さないため、成功結果の再取得を保証しない。月が変わっても同じ処理IDを有料で再実行しない。
 
 OpenAIのタイムアウト（18秒）、応答不正、拒否、usage確定失敗では予約を解放しない。アプリの通信待ちは25秒で、連打と自動再試行を抑止する。本人が「新しく録音する」を選んで別の回答を送ると、新しい処理IDと利用枠を使う。
+
+WorkerからOpenAIへのfetchは `redirect: manual` とし、3xxもエラー扱いにする。別ホストへのAuthorization転送を防ぐ。2026-10-04の実行環境では `redirect: error` がRequest生成時に例外となったため変更した。テストでもworkerdの本物のRequestコンストラクターを通し、fetchの全面モックだけでは検出できなかった制約を検証する。
 
 D1にはdevice ID、トークンハッシュ、期限/失効、処理ID・種別・月・費用・状態・作成時刻だけを保存する。OpenAI Responsesは `store:false`。これはAI事業者側の保持全般がゼロという意味ではなく、事業者の[データ制御](https://developers.openai.com/api/docs/guides/your-data)の対象になる。

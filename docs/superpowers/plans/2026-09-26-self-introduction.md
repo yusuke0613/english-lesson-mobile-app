@@ -168,6 +168,8 @@ flowchart LR
 
 2026-10-04の設定進捗：D1の実IDを `DB` bindingへ設定し、リモート初期マイグレーションとowner-iphone登録が完了。本人が既に発行したコードを保持し、ハッシュ一致・有効期限・未失効を確認した。APIの33テスト・型チェック・dry-runを再確認。OpenAIキー設定・公開・実機のSecureStore保存と実AI接続は未確認のため、Task 3全体の完了条件は引き続き未達。
 
+同日の追加進捗：本人が公開・キー設定を行い、AI有効化を明示承認。公開APIから文字入力1件に対する実AIの返答を確認した。Worker通信のredirect設定を修正し、API 44テストとmobile 36テストが成功。端末へ公開URLを設定して実機用QRを提示済み。iPhoneのSecureStore保存・録音/文字起こしからの一往復が未確認のため、Task 3全体は未完了。
+
 ### Task 4: 会話と補助をSQLiteに保存して再開
 
 **Files:** `mobile/src/storage/{database,migrations,lessonRepository}.ts`, `lessonRepository.test.ts`、reducer、Lesson/Home画面、package/lockfile。
